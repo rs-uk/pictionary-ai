@@ -1,8 +1,8 @@
 pytest
 pylint
 ipdb
-# ipykernel
-# jupyter
+ipykernel
+jupyter
 jupyterlab
 
 numpy
