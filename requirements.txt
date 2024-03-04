@@ -2,6 +2,7 @@ pytest
 pylint
 ipdb
 ipykernel
+jupyter
 jupyterlab
 
 numpy
