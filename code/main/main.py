@@ -1,11 +1,14 @@
 from model import models
 from sklearn.preprocessing import OneHotEncoder
 
+#how do i import from google bucket
+
 target_encoder = OneHotEncoder(sparse_output=False)
 #terget encoding, than transforming y which is the classes
+#the bellow line was for getting it from cv it will nto work with buckets
 y_encoded =target_encoder.fit_transform(yy.reshape(-1,1))
 
-#here XX is the X padded from processing
+#here XX is the X padded from processing, so need ot get it from buckets
 padded_tensor = XX
 
 tensor_length = len(padded_tensor)
