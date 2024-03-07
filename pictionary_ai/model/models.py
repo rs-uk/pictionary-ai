@@ -130,6 +130,7 @@ def compile_model(model: Model, learning_rate=0.0005) -> Model:
     """
     Compile the Neural Network
     with loss categorical_crossentropy, optimiser adam, metrics, accuracy
+    returns model
     """
     #what loss do we want?
     #i think should be using categorical
@@ -199,7 +200,7 @@ def evaluate_model(
         batch_size=64
     ) -> Tuple[Model, dict]:
     """
-    Evaluate trained model performance on the dataset
+    Evaluate trained model performance on the dataset, returns metrics 
     """
 
     print(Fore.BLUE + f"\nEvaluating model on {len(X)} rows..." + Style.RESET_ALL)

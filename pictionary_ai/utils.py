@@ -1,4 +1,9 @@
 from google.cloud import storage
+import subprocess
+import re
+import linecache
+import numpy as np
+import json
 
 
 # Copy all the content of one bucket to another bucket
@@ -92,3 +97,19 @@ def upload_blob(source_path, source_file_name, bucket_name, destination_blob_nam
 
     # Upload the file to the blob
     blob.upload_from_filename(source_file_path)
+
+def load_json_for_training(ndjson_filepath: object, is_X=True)
+    nb_drawings_to_load = int(re.search(r'\d+', str(subprocess.check_output(['wc', '-l', ndjson_filepath]))).group())
+
+    for i in nb_drawings_to_load:
+        json_drawing = json.loads(linecache.getline(ndjson_filepath, i+1 , module_globals=None))
+
+        if is_X:
+
+            feature = json_drawing['X_list']
+            linecache.clearcache()
+
+            return np.array(feature)
+
+        else:
+            return json_drawing['Y_list']
