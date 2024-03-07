@@ -1,23 +1,28 @@
 from model import models
 from sklearn.preprocessing import OneHotEncoder
-from utils import list_blobs, download_blob
+from utils import list_blobs, download_blob, upload_blob
 import pandas as pd
 import numpy as np
 
 #bucket name i am importing from
 bucket_name=
+source_blob_name=
+destination_path=
+destination_file_name=
 #get blob names
-blob_names = list_blobs(bucket_name)
+blob_names = list_blobs(bucket_name=bucket_name)
 
 #donload blod from bucket to a destination file name
-download_blob(bucket_name=bucket_name, source_blob_name='', destination_file_name='')
+download_blob(bucket_name=bucket_name, source_blob_name=source_blob_name, destination_path=destination_path, destination_file_name=destination_file_name)
 
-X = pd.
+X =
 
 
 #terget encoding, than transforming y which is the classes
 #the bellow line was for getting it from cv it will nto work with buckets
-y =
+target_encoder = OneHotEncoder(sparse_output=False)
+#terget encoding, than transforming y which is the classes
+y_encoded =target_encoder.fit_transform(yy.reshape(-1,1))
 
 #here XX is the X padded from processing, so need ot get it from buckets
 padded_tensor = X
@@ -45,3 +50,7 @@ model= models.compile_model(model)
 model, history = models.train_model(model, X_train, y_train, validation_data=[X_val,y_val])
 #evaluate model
 metrics= models.evaluate_model(model, X_test, y_test)
+
+#upload model to bucket
+
+upload_blob(source_path='raw_data/models',source_file_name='model_folder_name')
