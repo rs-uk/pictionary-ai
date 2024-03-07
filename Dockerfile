@@ -17,6 +17,7 @@ RUN pip install .
 
 #Use the local caching mechanism we put in place for CSVs and Models
 COPY code code
+COPY pictionary pictionary
 COPY Makefile Makefile
 #RUN make reset_local_files
 
