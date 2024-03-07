@@ -45,7 +45,7 @@ def list_blobs(bucket_name: str) -> list:
 
 
 # Download a blob from a bucket and store it locally
-def download_blob(bucket_name, source_blob_name, destination_file_name) -> None:
+def download_blob(bucket_name, source_blob_name, destination_path, destination_file_name=None) -> None:
     '''
     Downloads a blob from the bucket.
     '''
@@ -58,12 +58,19 @@ def download_blob(bucket_name, source_blob_name, destination_file_name) -> None:
     # Get the blob
     blob = bucket.blob(source_blob_name)
 
+    # Use the blob name for the local file is a filename is not provided
+    if destination_file_name is None:
+        destination_file_name = blob.name
+
+    # Define the destination file path
+    destination_file_path = '/'.join((destination_path, destination_file_name))
+
     # Download the blob to a file
-    blob.download_to_filename(destination_file_name)
+    blob.download_to_filename(destination_file_path)
 
 
-# Upload a file to a bucket
-def upload_blob(bucket_name, source_file_name, destination_blob_name) -> None:
+# Upload a local file to a bucket
+def upload_blob(source_path, source_file_name, bucket_name, destination_blob_name=None) -> None:
     '''
     Uploads a file to the bucket.
     '''
@@ -73,8 +80,15 @@ def upload_blob(bucket_name, source_file_name, destination_blob_name) -> None:
     # Get the bucket
     bucket = storage_client.bucket(bucket_name)
 
+    # Use the file name for the blob name if a blob name is not provided
+    if destination_blob_name is None:
+        destination_blob_name = source_file_name
+
     # Create a blob
     blob = bucket.blob(destination_blob_name)
 
+    # Define the source file path
+    source_file_path = '/'.join((source_path, source_file_name))
+
     # Upload the file to the blob
-    blob.upload_from_filename(source_file_name)
+    blob.upload_from_filename(source_file_path)
