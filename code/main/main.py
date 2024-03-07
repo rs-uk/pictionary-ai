@@ -3,6 +3,9 @@ from sklearn.preprocessing import OneHotEncoder
 
 #how do i import from google bucket
 
+
+
+
 target_encoder = OneHotEncoder(sparse_output=False)
 #terget encoding, than transforming y which is the classes
 #the bellow line was for getting it from cv it will nto work with buckets
