@@ -1,9 +1,12 @@
 from model import models
 from sklearn.preprocessing import OneHotEncoder
+from utils import list_blobs, download_blob
 
 #how do i import from google bucket
+bucket_name=
+blob_names = list_blobs(bucket_name)
 
-
+download_blob(bucket_name=bucket_name, source_blob_name='', destination_file_name='')
 
 
 target_encoder = OneHotEncoder(sparse_output=False)
