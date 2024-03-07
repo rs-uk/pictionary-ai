@@ -22,14 +22,15 @@ download_blob(bucket_name=bucket_name, source_blob_name=source_blob_name_y, dest
 download_blob(bucket_name=bucket_name, source_blob_name=source_blob_name_X, destination_path=destination_path, destination_file_name=destination_file_name_X)
 
 
-X = load_json_for_training
+X = load_json_for_training('../raw_data/X_json.json')
+y = load_json_for_training('../raw_data/X_json.json', is_X=False)
 
 
 #terget encoding, than transforming y which is the classes
 #the bellow line was for getting it from cv it will nto work with buckets
 target_encoder = OneHotEncoder(sparse_output=False)
 #terget encoding, than transforming y which is the classes
-y_encoded =target_encoder.fit_transform(yy.reshape(-1,1))
+y_encoded =target_encoder.fit_transform(y)
 
 #here XX is the X padded from processing, so need ot get it from buckets
 padded_tensor = X
