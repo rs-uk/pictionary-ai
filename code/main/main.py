@@ -1,4 +1,4 @@
-from model import models
+import model
 from sklearn.preprocessing import OneHotEncoder
 from utils import list_blobs, download_blob, upload_blob, load_json_for_training
 import pandas as pd
