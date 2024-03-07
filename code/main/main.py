@@ -1,21 +1,28 @@
 from model import models
 from sklearn.preprocessing import OneHotEncoder
-from utils import list_blobs, download_blob, upload_blob
+from utils import list_blobs, download_blob, upload_blob, load_json_for_training
 import pandas as pd
 import numpy as np
+import json
 
 #bucket name i am importing from
-bucket_name=
-source_blob_name=
-destination_path=
-destination_file_name=
+destination_path= '../raw_data/'
+destination_file_name_y= 'y_json.json'
+destination_file_name_X = 'X_json.json'
+source_path = '../raw_data/'
+source_blob_name_y = '../raw_data/y_json.json'
+source_blob_name_X = '../raw_data/X_json.json'
+bucket_name = 'quickdraw-simplified-modelready'
+
 #get blob names
 blob_names = list_blobs(bucket_name=bucket_name)
 
 #donload blod from bucket to a destination file name
-download_blob(bucket_name=bucket_name, source_blob_name=source_blob_name, destination_path=destination_path, destination_file_name=destination_file_name)
+download_blob(bucket_name=bucket_name, source_blob_name=source_blob_name_y, destination_path=destination_path, destination_file_name=destination_file_name_y)
+download_blob(bucket_name=bucket_name, source_blob_name=source_blob_name_X, destination_path=destination_path, destination_file_name=destination_file_name_X)
 
-X =
+
+X = load_json_for_training
 
 
 #terget encoding, than transforming y which is the classes
