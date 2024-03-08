@@ -182,7 +182,7 @@ def upload_blob_from_memory(source_blob: storage.Blob, bucket_name: str, destina
 
 
 # The below is only here temporarily
-def load_json_for_training(ndjson_filepath: object, is_X=True)
+def load_json_for_training(ndjson_filepath: object, is_X=True):
     nb_drawings_to_load = int(re.search(r'\d+', str(subprocess.check_output(['wc', '-l', ndjson_filepath]))).group())
 
     for i in nb_drawings_to_load:

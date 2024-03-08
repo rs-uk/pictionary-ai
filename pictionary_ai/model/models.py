@@ -6,6 +6,8 @@ from tensorflow.keras import utils
 from keras import Model, Sequential, layers, regularizers, optimizers
 from sklearn.preprocessing import TargetEncoder
 from colorama import Fore, Style
+import numpy as np
+from typing import Tuple
 
 # this is the length we are padding too
 max_length = 150
@@ -200,7 +202,7 @@ def evaluate_model(
         batch_size=64
     ) -> Tuple[Model, dict]:
     """
-    Evaluate trained model performance on the dataset, returns metrics 
+    Evaluate trained model performance on the dataset, returns metrics
     """
 
     print(Fore.BLUE + f"\nEvaluating model on {len(X)} rows..." + Style.RESET_ALL)
