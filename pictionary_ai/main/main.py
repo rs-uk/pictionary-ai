@@ -1,9 +1,10 @@
 from pictionary_ai.model import models
 from sklearn.preprocessing import OneHotEncoder
-from pictionary_ai.utils import list_blobs, download_blob, upload_blob, load_json_for_training
+from pictionary_ai.utils import list_blobs, download_blob_to_local_file, upload_blob_from_local_file, load_json_for_training
 import pandas as pd
 import numpy as np
 import json
+
 
 #bucket name i am importing from
 destination_path= '../raw_data'
@@ -18,9 +19,9 @@ bucket_name = 'quickdraw-simplified-modelready'
 blob_names = list_blobs(bucket_name=bucket_name)
 
 #donload blod from bucket to a destination file name
-# download_blob(bucket_name=bucket_name, source_blob_name=source_blob_name_y, destination_path=destination_path, destination_file_name=destination_file_name_y)
-# download_blob(bucket_name=bucket_name, source_blob_name=source_blob_name_X, destination_path=destination_path, destination_file_name=destination_file_name_X)
 
+# download_blob_to_local_file(bucket_name=bucket_name, source_blob_name=source_blob_name_y, destination_path=destination_path, destination_file_name=destination_file_name_y)
+# download_blob_to_local_file(bucket_name=bucket_name, source_blob_name=source_blob_name_X, destination_path=destination_path, destination_file_name=destination_file_name_X)
 
 X = load_json_for_training('../raw_data/X_json.json')
 y = load_json_for_training('../raw_data/y_json.json', is_X=False)
@@ -63,6 +64,7 @@ y_shuffled = np.array(y_list_shuffled)
 #the bellow line was for getting it from cv it will nto work with buckets
 target_encoder = OneHotEncoder(sparse_output=False)
 #terget encoding, than transforming y which is the classes
+
 y =target_encoder.fit_transform(y_shuffled.reshape(-1, 1))
 
 #here XX is the X padded from processing, so need ot get it from buckets
@@ -96,6 +98,5 @@ model, history = models.train_model(model, X_train, y_train, validation_data=[X_
 metrics= models.evaluate_model(model, X_test, y_test)
 
 #upload model to bucket
-
 
 upload_blob(source_path='raw_data/models',source_file_name='model_saved_pictionaryai')

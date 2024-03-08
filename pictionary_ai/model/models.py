@@ -207,7 +207,7 @@ def evaluate_model(
         batch_size=64
     ) -> Tuple[Model, dict]:
     """
-    Evaluate trained model performance on the dataset, returns metrics 
+    Evaluate trained model performance on the dataset, returns metrics
     """
 
     print(Fore.BLUE + f"\nEvaluating model on {len(X)} rows..." + Style.RESET_ALL)
