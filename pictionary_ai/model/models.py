@@ -6,12 +6,15 @@ from tensorflow.keras import utils
 from keras import Model, Sequential, layers, regularizers, optimizers
 from sklearn.preprocessing import TargetEncoder
 from colorama import Fore, Style
+import numpy as np
+import pandas as pd
+from typing import Tuple
 
 # this is the length we are padding too
 max_length = 150
 
 #no of classes we are using
-num_classes = 2
+num_classes = 10
 def model_bidirectional() -> Model:
     """
     Initialize the Neural Network with random weights, using bidirectional LTSM
@@ -89,42 +92,45 @@ def model_LTSM() -> Model:
     return model
 
 def model_LTSM_conv() -> Model:
-      '''model has conv1d layer and max pooling adn than LTSM, got this model from
-      https://medium.com/@www.seymour/training-a-recurrent-neural-network-to-recognise-sketches-in-a-real-time-game-of-pictionary-16c91e185ce6'''
-      model = Sequential()
+    '''model has conv1d layer and max pooling adn than LTSM, got this model from
+    https://medium.com/@www.seymour/training-a-recurrent-neural-network-to-recognise-sketches-in-a
+    realtime-game-of-pictionary-16c91e185ce6'''
+    
+    model = Sequential()
 
       # Input layer
-      model.add(layers.Masking(mask_value=99, input_shape=(max_length, 3)))
+    model.add(layers.Masking(mask_value=99, input_shape=(max_length, 3)))
 
       # Masking layer
-      model.add(layers.Masking(mask_value=99))
+    model.add(layers.Masking(mask_value=99))
 
       # 1D Convolutional Layers- should i have more or less dropout?
-      model.add(layers.Conv1D(32, 3, activation='relu'))
-      model.add(layers.Conv1D(64, 3, activation='relu'))
-      model.add(layers.MaxPooling1D(2))
-      model.add(layers.Dropout(rate=0.2))
+    model.add(layers.Conv1D(32, 3, activation='relu'))
+    model.add(layers.Conv1D(64, 3, activation='relu'))
+    model.add(layers.MaxPooling1D(2))
+    model.add(layers.Dropout(rate=0.2))
 
-      model.add(layers.Conv1D(128, 3, activation='relu'))
-      model.add(layers.MaxPooling1D(2))
-      model.add(layers.Dropout(rate=0.2))
+    model.add(layers.Conv1D(128, 3, activation='relu'))
+    model.add(layers.MaxPooling1D(2))
+    model.add(layers.Dropout(rate=0.2))
 
       # Recurrent layers (e.g., LSTM)
-      model.add(layers.LSTM(128, return_sequences=True,dropout=0.2, recurrent_dropout=0.2))
+    model.add(layers.LSTM(128, return_sequences=True,dropout=0.2, recurrent_dropout=0.2))
 
-      model.add(layers.LSTM(128,dropout=0.2, recurrent_dropout=0.2))
+    model.add(layers.LSTM(128,dropout=0.2, recurrent_dropout=0.2))
 
 
       # Dense layers
-      model.add(layers.Dense(128, activation='relu'))
-      model.add(layers.Dropout(rate=0.2))
-      model.add(layers.Dense(128, activation='relu'))
-      model.add(layers.Dropout(rate=0.2))
+    model.add(layers.Dense(128, activation='relu'))
+    model.add(layers.Dropout(rate=0.2))
+    model.add(layers.Dense(128, activation='relu'))
+    model.add(layers.Dropout(rate=0.2))
 
       # Output layer
-      model.add(layers.Dense(self.num_categories, activation='softmax'))
+    model.add(layers.Dense(self.num_categories, activation='softmax'))
 
-      return model
+    
+    return model
 
 def compile_model(model: Model, learning_rate=0.0005) -> Model:
     """
@@ -167,7 +173,8 @@ def train_model(
         verbose=1
     )
 
-    checkpoint_filepath = '/home/honor/code/rs-uk/pictionary-ai/raw_data/models'
+    checkpoint_filepath = '/home/jupyter/lewagon_projects/pictionary-ai/raw_data/models'
+ 
     #this will save the checkpoints in the checkpoint_filepath
     model_checkpoint_callback = callbacks.ModelCheckpoint(
     filepath=checkpoint_filepath,
