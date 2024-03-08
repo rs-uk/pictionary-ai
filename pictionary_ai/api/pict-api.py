@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pictionary_ai.preprocessing import preprocessor
+import json
+
 
 app = FastAPI()
 # app.state.model = registry.load_model()
