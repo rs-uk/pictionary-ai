@@ -1,9 +1,10 @@
 from pictionary_ai.model import models
 from sklearn.preprocessing import OneHotEncoder
-from pictionary_ai.utils import list_blobs, download_blob, upload_blob, load_json_for_training
+from pictionary_ai.utils import list_blobs, download_blob_to_local_file, upload_blob_from_local_file, load_json_for_training
 import pandas as pd
 import numpy as np
 import json
+
 
 #bucket name i am importing from
 destination_path= '../raw_data'
@@ -18,8 +19,8 @@ bucket_name = 'quickdraw-simplified-modelready'
 blob_names = list_blobs(bucket_name=bucket_name)
 
 #donload blod from bucket to a destination file name
-download_blob(bucket_name=bucket_name, source_blob_name=source_blob_name_y, destination_path=destination_path, destination_file_name=destination_file_name_y)
-download_blob(bucket_name=bucket_name, source_blob_name=source_blob_name_X, destination_path=destination_path, destination_file_name=destination_file_name_X)
+# download_blob_to_local_file(bucket_name=bucket_name, source_blob_name=source_blob_name_y, destination_path=destination_path, destination_file_name=destination_file_name_y)
+# download_blob_to_local_file(bucket_name=bucket_name, source_blob_name=source_blob_name_X, destination_path=destination_path, destination_file_name=destination_file_name_X)
 
 X = load_json_for_training('../raw_data/X_json.json')
 y = load_json_for_training('../raw_data/X_json.json', is_X=False)
@@ -60,4 +61,4 @@ metrics= models.evaluate_model(model, X_test, y_test)
 
 #upload model to bucket
 
-upload_blob(source_path='raw_data/models',source_file_name='model_folder_name')
+# upload_blob_from_local_file(source_path='raw_data/models',source_file_name='model_folder_name')

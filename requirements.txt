@@ -25,8 +25,8 @@ mlflow==2.1.1
 prefect==2.14.9
 
 # API
-fastapi==0.110.0
-pytz
+fastapi==0.108.0
+# # pytz
 uvicorn
 
 # Prett
