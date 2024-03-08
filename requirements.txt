@@ -28,3 +28,5 @@ prefect==2.14.9
 fastapi==0.110.0
 # # pytz
 # uvicorn
+
+# Prett
