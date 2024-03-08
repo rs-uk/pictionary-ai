@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from code.preprocessing import preprocessor
+from pictionary_ai.preprocessing import preprocessor
+import json
+
 
 app = FastAPI()
 # app.state.model = registry.load_model()
@@ -25,4 +27,4 @@ def predict(json_drawing: json):
             - the strokes are lists of coordinates
                 - the coordinates are lists of xs and ys
     '''
-    X_pred = 
+    X_pred =
