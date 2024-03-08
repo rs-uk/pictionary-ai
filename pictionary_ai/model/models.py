@@ -7,6 +7,7 @@ from keras import Model, Sequential, layers, regularizers, optimizers
 from sklearn.preprocessing import TargetEncoder
 from colorama import Fore, Style
 import numpy as np
+import pandas as pd
 from typing import Tuple
 
 # this is the length we are padding too
