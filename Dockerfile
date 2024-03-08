@@ -22,7 +22,7 @@ COPY Makefile Makefile
 #RUN make reset_local_files
 
 #CMD uvicorn Pictionary.api.fast:app --host 0.0.0.0
-#CMD uvicorn pictionary-ai.api.fast:app --host 0.0.0.0 --port $PORT
+CMD uvicorn pictionary-ai.api.fast:app --host 0.0.0.0 --port $PORT
 
 
 
