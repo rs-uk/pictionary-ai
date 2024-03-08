@@ -8,6 +8,9 @@ LOCAL_DATA_PATH = os.path.join(os.path.expanduser('~'), 'code', 'rs-uk', 'pictio
 
 
 
+
 #####################  VARIABLES  #####################
 BUCKET_NAME_DRAWINGS_SIMPLIFIED = os.environ.get('BUCKET_NAME_DRAWINGS_SIMPLIFIED')
 BUCKET_NAME_DRAWINGS_SIMPLIFIED_PROCESSED = os.environ.get('BUCKET_NAME_DRAWINGS_SIMPLIFIED_PROCESSED')
+
+
