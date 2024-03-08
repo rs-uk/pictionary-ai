@@ -50,7 +50,7 @@ def list_blobs(bucket_name: str) -> list:
 
 
 # Download a blob from a bucket and store it locally
-def download_blob(bucket_name, source_blob_name, destination_path, destination_file_name=None) -> None:
+def download_blob_to_local_file(bucket_name: str, source_blob_name: str, destination_path: str, destination_file_name:str = None) -> None:
     '''
     Downloads a blob from the bucket.
     '''
@@ -75,7 +75,7 @@ def download_blob(bucket_name, source_blob_name, destination_path, destination_f
 
 
 # Upload a local file to a bucket
-def upload_blob(source_path, source_file_name, bucket_name, destination_blob_name=None) -> None:
+def upload_blob_from_local_file(source_path: str, source_file_name:str, bucket_name: str, destination_blob_name:str = None) -> None:
     '''
     Uploads a file to the bucket.
     '''
@@ -98,6 +98,90 @@ def upload_blob(source_path, source_file_name, bucket_name, destination_blob_nam
     # Upload the file to the blob
     blob.upload_from_filename(source_file_path)
 
+
+# # Download a blob from a bucket and return it as a binary I/O
+# def download_blob_to_memory(bucket_name: str, source_blob_name: str) -> bytes:
+#     '''
+#     Downloads a blob from the bucket.
+#     '''
+#     # Initialize a client
+#     storage_client = storage.Client()
+
+#     # Get the bucket
+#     bucket = storage_client.bucket(bucket_name)
+
+#     # Get the blob
+#     blob = bucket.blob(source_blob_name)
+
+#     # Open the blob in binary I/O mode
+#     bin_blob = blob.open(mode='rb')
+
+#     return bin_blob
+
+
+# Download a blob from a bucket and return it as a Blob Class instance
+def download_blob_to_memory(bucket_name: str, source_blob_name: str) -> storage.Blob:
+    '''
+    Downloads a blob from the bucket.
+    '''
+    # Initialize a client
+    storage_client = storage.Client()
+
+    # Get the bucket
+    bucket = storage_client.bucket(bucket_name)
+
+    # Get the blob
+    blob = bucket.blob(source_blob_name)
+
+    return blob
+
+
+# # Upload a blob from memory to a bucket
+# def upload_blob_from_memory(source_blob: bytes, bucket_name: str, destination_blob_name: str = None) -> None:
+#     '''
+#     Uploads a file to the bucket.
+#     '''
+#     # Initialize a client
+#     storage_client = storage.Client()
+
+#     # Get the bucket
+#     bucket = storage_client.bucket(bucket_name)
+
+#     # Use the file name for the blob name if a blob name is not provided
+#     if destination_blob_name is None:
+#         destination_blob_name = source_blob.name
+
+#     # Create a blob on the destination
+#     target_blob = bucket.blob(destination_blob_name)
+
+#     # Upload the file to the blob
+#     target_blob.upload_from_file(source_blob.open(mode='r'))
+
+
+# Upload a blob from memory to a bucket
+def upload_blob_from_memory(source_blob: storage.Blob, bucket_name: str, destination_blob_name: str = None) -> None:
+    '''
+    Uploads a blob to the bucket.
+    '''
+    # Initialize a client
+    storage_client = storage.Client()
+
+    # Get the bucket
+    bucket = storage_client.bucket(bucket_name)
+
+    # Use the file name for the blob name if a blob name is not provided
+    if destination_blob_name is None:
+        destination_blob_name = source_blob.name
+
+    # Create a blob on the destination
+    target_blob = bucket.blob(destination_blob_name)
+
+    # Upload the file to the blob
+    target_blob.upload_from_file(source_blob.open(mode='rb'))
+
+
+
+# The below is only here temporarily
 def load_json_for_training(ndjson_filepath: object, is_X=True)
     nb_drawings_to_load = int(re.search(r'\d+', str(subprocess.check_output(['wc', '-l', ndjson_filepath]))).group())
 
