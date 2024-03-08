@@ -98,6 +98,7 @@ def upload_blob_from_local_file(source_path: str, source_file_name:str, bucket_n
     # Upload the file to the blob
     blob.upload_from_filename(source_file_path)
 
+def load_json_for_training(ndjson_filepath: object, is_X=True):
 
 # # Download a blob from a bucket and return it as a binary I/O
 # def download_blob_to_memory(bucket_name: str, source_blob_name: str) -> bytes:
@@ -179,21 +180,31 @@ def upload_blob_from_memory(source_blob: storage.Blob, bucket_name: str, destina
     # Upload the file to the blob
     target_blob.upload_from_file(source_blob.open(mode='rb'))
 
-
-
 # The below is only here temporarily
 def load_json_for_training(ndjson_filepath: object, is_X=True)
     nb_drawings_to_load = int(re.search(r'\d+', str(subprocess.check_output(['wc', '-l', ndjson_filepath]))).group())
 
-    for i in nb_drawings_to_load:
-        json_drawing = json.loads(linecache.getline(ndjson_filepath, i+1 , module_globals=None))
+    if is_X:
+        with open(ndjson_filepath, 'r') as f:
+            feature = json.load(f)['X_data']
+        return feature
+    else:
+        with open(ndjson_filepath, 'r') as f:
+            feature = json.load(f)['y_data']
+        return feature
 
-        if is_X:
+#     nb_drawings_to_load = int(re.search(r'\d+', str(subprocess.check_output(['wc', '-l', ndjson_filepath]))).group())
 
-            feature = json_drawing['X_list']
-            linecache.clearcache()
+#     for i in range(nb_drawings_to_load):
+#         json_drawing = json.loads(linecache.getline(ndjson_filepath, i+1 , module_globals=None))
 
-            return np.array(feature)
+#         if is_X:
 
-        else:
-            return json_drawing['Y_list']
+#             feature = json_drawing['X_list']
+#             linecache.clearcache()
+
+#             return np.array(feature)
+
+#         else:
+#             return json_drawing['Y_list']
+
