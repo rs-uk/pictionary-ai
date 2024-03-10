@@ -25,6 +25,7 @@ def homepage():
 
     return "Welcome to the pictionary ai api"
 
+
 @app.post("/api")
 async def get_json(request: Request):
     json_drawing = await request.json()
