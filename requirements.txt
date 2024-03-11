@@ -4,6 +4,7 @@ ipdb
 ipykernel
 jupyter
 jupyterlab
+ujson
 
 numpy
 pandas
@@ -29,4 +30,5 @@ fastapi==0.108.0
 # # pytz
 uvicorn
 
-# Prett
+# Prettify
+tqdm
