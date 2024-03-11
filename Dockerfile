@@ -6,8 +6,11 @@ FROM python:3.10.6-buster
 RUN pip install --upgrade pip
 
 # install dependencies
-COPY requirements.txt requirements.txt
+COPY requirements_production.txt requirements.txt
 RUN pip install -r requirements.txt
+
+#install raw data
+COPY raw_data raw_data
 
 # install pictionary_ai package
 COPY pictionary_ai /pictionary_ai
