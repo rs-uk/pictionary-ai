@@ -1,10 +1,15 @@
+# from keras.models import Sequential
+# from keras import Sequential
 from tensorflow.python.keras.models import Sequential
-from tensorflow.python.keras.optimizers import Adam
-from tensorflow.python.keras import layers
+# from keras.optimizers import Adam
+from tensorflow.python.keras.optimizers import adam_v2
 from tensorflow.python.keras import callbacks
-from tensorflow.python.keras import utils
-from keras import Model, Sequential, layers, optimizers, regularizers
-from sklearn.preprocessing import TargetEncoder
+# from tensorflow.python.keras import utils
+# from keras import Sequential
+from keras import Model, layers
+# from keras import optimizers, regularizers
+# from tensorflow.python.keras import layers
+# from sklearn.preprocessing import TargetEncoder
 from colorama import Fore, Style
 import numpy as np
 from typing import Tuple
@@ -51,7 +56,7 @@ def compile_model(model: Model, learning_rate=0.0005) -> Model:
     optimiser Adam, and accuracy for the metric.
     Return the compiled model.
     '''
-    optimizer = optimizers.Adam(learning_rate=learning_rate)
+    optimizer = adam_v2(learning_rate=learning_rate)
     model.compile(loss="categorical_crossentropy", optimizer=optimizer, metrics=["accuracy"])
 
     print("✅ Model compiled")
@@ -129,6 +134,8 @@ def evaluate_model(model: Model,
     print(f"✅ Model evaluated, accuracy: {round(accuracy, 2)}")
 
     return metrics
+
+
 
 
 
