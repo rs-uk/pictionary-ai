@@ -14,6 +14,8 @@ if not os.path.exists(LOCAL_DATA_PATH):
     os.makedirs(LOCAL_DATA_PATH)
 
 
+
+
 #####################  VARIABLES  #####################
 BUCKET_NAME_DRAWINGS_SIMPLIFIED = os.environ.get('BUCKET_NAME_DRAWINGS_SIMPLIFIED')
 # BUCKET_NAME_DRAWINGS_SIMPLIFIED_PROCESSED = os.environ.get('BUCKET_NAME_DRAWINGS_SIMPLIFIED_PROCESSED')
