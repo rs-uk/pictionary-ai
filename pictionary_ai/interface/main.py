@@ -16,10 +16,10 @@ def download_simplified_dataset(source_bucket:str = BUCKET_NAME_DRAWINGS_SIMPLIF
     Download the dataset on the machine for faster training.
     '''
     # Checking that the project's bucket matches the Google original one, if not copy Google data
-    bucket_ready, reason = compare_buckets(BUCKET_NAME_DRAWINGS_SIMPLIFIED, ORIGINAL_BUCKET_DRAWINGS_SIMPLIFIED)
+    bucket_ready, reason = compare_buckets(BUCKET_NAME_DRAWINGS_SIMPLIFIED, ORIGINAL_BUCKET_DRAWINGS, prefix_blobs2=ORIGINAL_BLOB_DRAWINGS_SIMPLIFIED_PREFIX)
     if not bucket_ready:
         print(reason)
-        copy_bucket(ORIGINAL_BUCKET_DRAWINGS_SIMPLIFIED, BUCKET_NAME_DRAWINGS_SIMPLIFIED)
+        copy_bucket(ORIGINAL_BUCKET_DRAWINGS, BUCKET_NAME_DRAWINGS_SIMPLIFIED, prefix_blobs_source=ORIGINAL_BLOB_DRAWINGS_SIMPLIFIED_PREFIX)
     # Initialize a client
     storage_client = storage.Client()
     # Get the bucket
