@@ -7,21 +7,21 @@ import ujson # much faster than json lib for simple tasks
 
 
 
-def list_bucket_contents(bucket_name:str) -> dict:
+def list_bucket_contents(bucket_name:str, prefix_blob:str = None) -> dict:
     '''
     Return a dictionary of the blobs in a bucket.
     '''
     client = storage.Client()
     bucket = client.get_bucket(bucket_name)
-    return {blob.name: blob for blob in bucket.list_blobs()}
+    return {blob.name: blob for blob in bucket.list_blobs(prefix=prefix_blob)}
 
 
-def compare_buckets(bucket_name1:str, bucket_name2:str) -> bool:
+def compare_buckets(bucket_name1:str, bucket_name2:str, prefix_blobs1:str = None, prefix_blobs2:str = None) -> bool:
     '''
     Compare two buckets and return True if they are identical and/or an explanation.
     '''
-    bucket1_contents = list_bucket_contents(bucket_name1)
-    bucket2_contents = list_bucket_contents(bucket_name2)
+    bucket1_contents = list_bucket_contents(bucket_name1, prefix_blob=prefix_blobs1)
+    bucket2_contents = list_bucket_contents(bucket_name2, prefix_blob=prefix_blobs2)
     # Check if the number of objects in the buckets match
     if len(bucket1_contents) != len(bucket2_contents):
         return False, "Bucket sizes are different"
@@ -36,7 +36,7 @@ def compare_buckets(bucket_name1:str, bucket_name2:str) -> bool:
     return True, "Buckets are identical"
 
 
-def copy_bucket(source_bucket_name:str, destination_bucket_name:str) -> None:
+def copy_bucket(source_bucket_name:str, destination_bucket_name:str, prefix_blobs_source:str = None, prefix_blobs_destination:str = None) -> None:
     '''
     Copy all blobs from the source bucket to the destination bucket.
     '''
@@ -45,17 +45,33 @@ def copy_bucket(source_bucket_name:str, destination_bucket_name:str) -> None:
     destination_client = storage.Client()
 
     # Get the source and destination buckets
-    source_bucket = source_client.bucket(source_bucket_name)
-    destination_bucket = destination_client.bucket(destination_bucket_name)
+    source_bucket = source_client.get_bucket(source_bucket_name)
+    destination_bucket = destination_client.get_bucket(destination_bucket_name)
 
     # List blobs in the source bucket (to tqdm to show copy progress)
-    blobs = tqdm(source_bucket.list_blobs())
+    blobs = tqdm(source_bucket.list_blobs(prefix=prefix_blobs_source))
 
     # Copy each blob to the destination bucket
     for blob in blobs:
-        source_blob = source_bucket.blob(blob.name)
-        destination_blob = destination_bucket.blob(blob.name)
-        destination_blob.copy(source_blob)
+        destination_blob_name = blob.name.replace(prefix_blobs_source, prefix_blobs_destination, 1)
+        destination_blob = source_bucket.copy_blob(blob, destination_bucket, new_name=destination_blob_name)
+
+
+def copy_bucket_objects_with_prefix(source_bucket_name, destination_bucket_name, prefix):
+    # Create a client object
+    client = storage.Client()
+
+    # Get the source and destination buckets
+    source_bucket = client.get_bucket(source_bucket_name)
+    destination_bucket = client.get_bucket(destination_bucket_name)
+
+    # List the blobs (objects) in the source bucket
+    blobs = source_bucket.list_blobs()
+
+    # Copy each blob to the destination bucket with the specified prefix
+    for blob in blobs:
+        new_blob = source_bucket.copy_blob(blob, destination_bucket, new_name=f"{prefix}/{blob.name}")
+        print(f'Copied {blob.name} to {new_blob.name} in {destination_bucket_name} with prefix {prefix}')
 
 
 def list_blobs(bucket_name:str) -> list:

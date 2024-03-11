@@ -12,8 +12,9 @@ NUMBER_CLASSES = 5
 PERCENT_CLASS = 1
 
 # The Google-managed buckets with the quickdraw dataset
-ORIGINAL_BUCKET_DRAWINGS_SIMPLIFIED = 'quickdraw_dataset/full/simplified'
-ORIGINAL_BUCKET_DRAWINGS_RAW = 'quickdraw_dataset/full/raw'
+ORIGINAL_BUCKET_DRAWINGS = 'quickdraw_dataset'
+ORIGINAL_BLOB_DRAWINGS_SIMPLIFIED_PREFIX = 'full/simplified'
+ORIGINAL_BLOB_DRAWINGS_RAW_PREFIX = 'full/raw'
 
 
 # Set LOCAL_DATA_PATH to the "raw_data" folder and create it if needed
