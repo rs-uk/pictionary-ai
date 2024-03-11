@@ -120,10 +120,15 @@ def preprocess_pad_OHE_simplified_dataset(dataset_local_path:str = f"{LOCAL_DATA
     for class_file in tqdm_class_files:
         class_filepath = f"{dataset_local_path}/{class_file}"
         tqdm_class_files.set_description(f"Pre-processing {class_file}")
-        list_drawings_processed = process_class(class_filepath, 'all', shuffle=shuffle, silent=False)
+        list_drawings_processed = preprocess_class(class_filepath, 'all', shuffle=shuffle, silent=False)
         tqdm_class_files.set_description(f"Padding {class_file}")
         list_drawings_padded = pad_class(list_drawings_processed, silent=False)
         tqdm_class_files.set_description(f"One-Hot-Encoding {class_file}")
         list_drawings_OHE = OHE_class(list_drawings_padded, dict_OHE_mapping, silent=False)
         tqdm_class_files.set_description(f"Saving {class_file}")
         save_drawings_to_ndjson_local(list_drawings_OHE, f"{destination_folder_path}/{class_file}", silent=False)
+
+
+# TODO: input a number of classes and % within the classes to use
+
+def select_subset(nb_classes)
