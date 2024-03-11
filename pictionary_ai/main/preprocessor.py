@@ -107,7 +107,7 @@ def add_padding(list_drawing:list, max_length:int = MAX_LENGTH) -> list:
     Apply padding to a drawing (as list) or truncate it if needed
     '''
     # Define values for padding layers - e.g. [99,99,99]
-    padding = [[99,99,99]]
+    padding = [[PADDING_VALUE,PADDING_VALUE,PADDING_VALUE]]
 
     # If array is greater than max_length slice off remainder of array
     if len(list_drawing) >= max_length :
@@ -174,23 +174,3 @@ def OHE_class(list_padded_drawings:list, dict_classes_mapping:dict, silent:bool 
     tqdm_list_padded_drawings.close()
 
     return list_padded_drawings
-
-
-def save_drawings_to_ndjson_local(list_drawings:list, output_file:str, silent:bool = False) -> None:
-    '''
-    Saves the drawings in the list to a local NDJSON file.
-        - list_drawings: contains a dictionary for each drawing
-        - output_file: the complete filepath to the target file to save/create (.ndjson)
-    '''
-    l_bar='{percentage:3.0f}%|'
-    bar = '{bar}'
-    r_bar='| {n_fmt}/{total_fmt}'
-    bar_format = l_bar + bar + r_bar
-    tqdm_list_drawings = tqdm(list_drawings, bar_format=bar_format, disable=silent, leave=False)
-
-    with open(output_file, 'w') as ndjson_file:
-        # Write each drawing's dict to the file as a new line
-        # The json.dump is necessary to output correctly formatted JSON
-        for dict_drawing in tqdm_list_drawings:
-            ujson.dump(dict_drawing, ndjson_file)
-            ndjson_file.write('\n')

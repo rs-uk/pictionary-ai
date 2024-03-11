@@ -149,6 +149,26 @@ def list_drawings_in_class(class_filepath:str) -> list:
     return list_drawings
 
 
+def save_drawings_to_ndjson_local(list_drawings:list, output_file:str, silent:bool = False) -> None:
+    '''
+    Saves the drawings in the list to a local NDJSON file.
+        - list_drawings: contains a dictionary for each drawing
+        - output_file: the complete filepath to the target file to save/create (.ndjson)
+    '''
+    l_bar='{percentage:3.0f}%|'
+    bar = '{bar}'
+    r_bar='| {n_fmt}/{total_fmt}'
+    bar_format = l_bar + bar + r_bar
+    tqdm_list_drawings = tqdm(list_drawings, bar_format=bar_format, disable=silent, leave=False)
+
+    with open(output_file, 'w') as ndjson_file:
+        # Write each drawing's dict to the file as a new line
+        # The json.dump is necessary to output correctly formatted JSON
+        for dict_drawing in tqdm_list_drawings:
+            ujson.dump(dict_drawing, ndjson_file)
+            ndjson_file.write('\n')
+
+
 def create_classes_mapping(class_files_path:str) -> dict:
     '''
     Create a mapping of the classes present in a directory for OHE, return it as a dictionary
