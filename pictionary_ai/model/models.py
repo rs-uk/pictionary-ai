@@ -9,7 +9,7 @@ from colorama import Fore, Style
 import numpy as np
 import pandas as pd
 from typing import Tuple
-from params import *
+from pictionary_ai.params import *
 
 
 #no of classes we are using
