@@ -2,7 +2,8 @@ from google.cloud import storage
 import linecache
 import numpy as np
 from tqdm.auto import tqdm
-import re, os, json, subprocess
+import re, os, subprocess
+import ujson # much faster than json lib for simple tasks
 
 
 
@@ -127,12 +128,25 @@ def upload_blob_from_local_file(source_path:str, source_file_name:str, bucket_na
 def load_json_for_training(ndjson_filepath:object, is_X=True):
     if is_X:
         with open(ndjson_filepath, 'r') as f:
-            feature = json.load(f)['X_data']
+            feature = ujson.load(f)['X_data']
         return feature
     else:
         with open(ndjson_filepath, 'r') as f:
-            feature = json.load(f)['y_data']
+            feature = ujson.load(f)['y_data']
         return feature
+
+
+def list_drawings_in_class(class_filepath:str) -> list:
+    '''
+    Create a list of all drawings in a class as dict.
+    '''
+    list_drawings = []
+    # Getting the number of lines in the file using a shell command (fastest way)
+    nb_drawings = int(re.search(r'\d+', str(subprocess.check_output(['wc', '-l', class_filepath]))).group())
+    for i in nb_drawings:
+        list_drawings.append(linecache.getline(class_filepath, i+1 , module_globals=None))
+
+    return list_drawings
 
 
 def create_classes_mapping(class_files_path:str) -> dict:
