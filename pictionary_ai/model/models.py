@@ -1,8 +1,8 @@
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.optimizers import Adam
-from tensorflow.keras import layers
-from tensorflow.keras import callbacks
-from tensorflow.keras import utils
+from tensorflow.python.keras.models import Sequential
+from tensorflow.python.keras.optimizers import Adam
+from tensorflow.python.keras import layers
+from tensorflow.python.keras import callbacks
+from tensorflow.python.keras import utils
 from keras import Model, Sequential, layers, optimizers, regularizers
 from sklearn.preprocessing import TargetEncoder
 from colorama import Fore, Style
