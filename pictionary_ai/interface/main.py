@@ -4,6 +4,7 @@ from pictionary_ai.main.preprocessor import *
 from google.cloud import storage
 from tqdm.auto import tqdm
 from pathlib import Path
+import random
 
 
 def download_simplified_dataset(source_bucket:str = BUCKET_NAME_DRAWINGS_SIMPLIFIED, destination_path:str = LOCAL_DATA_PATH) -> None:
@@ -129,6 +130,62 @@ def preprocess_pad_OHE_simplified_dataset(dataset_local_path:str = f"{LOCAL_DATA
         save_drawings_to_ndjson_local(list_drawings_OHE, f"{destination_folder_path}/{class_file}", silent=False)
 
 
-# TODO: input a number of classes and % within the classes to use
+def select_subset(dataset_local_path:str = f"{LOCAL_DATA_PATH}/{BUCKET_NAME_DRAWINGS_SIMPLIFIED}", pc_within_class:int = 10, **kwargs):
+    '''
+    Select a subset of the locally-stored quickdraw dataset, pulling the given percentage
+    of drawings within each class. This shuffles the classes and the drawings within.
+    By default we take 10% of the classes as this seems enough for learning.
+    **kwargs:
+        - nb_classes: int, the number of classes to select at random
+        - list_classes: list, the name of the classes to select, overrides nb_classes
+    '''
+    # List the classes present in the dataset_local_path
+    list_classes = []
+    classes_files = [file for file in os.listdir(dataset_local_path) if os.path.isfile(os.path.join(dataset_local_path, file)) and file.endswith('.ndjson')]
+    for class_file in classes_files:
+        # remove the file extension
+        class_name = re.sub(r'\.[^.]*$', '', class_file)
+        # remove all descriptive prefixes with the class name starting after the last '_'
+        class_name = re.sub(r'^.*_(.+)$', r'\1', class_name)
+        list_classes.append(class_name)
 
-def select_subset(nb_classes)
+    # If the call specifies a list of classes, we use it as is
+    if kwargs['list_classes'] is not None and isinstance(kwargs['list_classes'], list):
+        list_classes = kwargs['list_classes']
+    # If the call doesnt specify a list of classes but specifies a number of classes
+    # to use then we take those classes randomly among the ones present in the dataset
+    elif kwargs['nb_classes'] is not None and isinstance(kwargs['nb_classes'], int):
+        list_classes = random.shuffle(list_classes)
+        list_classes = list_classes[0: kwargs['nb_classes']]
+
+    # Defining the new folder for that subset and create it if not existent
+    nb_classes = len(list_classes)
+    subset_local_path = f"{LOCAL_DATA_PATH}/{BUCKET_NAME_DRAWINGS_SIMPLIFIED}_{pc_within_class}pc_{nb_classes}classes"
+    if not os.path.exists(subset_local_path):
+        os.makedirs(subset_local_path)
+
+    # Build the tqdm bar
+    l_bar='{desc} {percentage:3.0f}%|'
+    bar = '{bar}'
+    r_bar='| {n_fmt}/{total_fmt} [{elapsed}<{remaining}, ' '{rate_fmt}{postfix}]'
+    bar_format = l_bar + bar + r_bar
+    tqdm_class_names = tqdm(list_classes, bar_format=bar_format) # to tqdm to display progress
+
+    # Copying the selected classes files to the new subset folder
+    for class_name in tqdm_class_names:
+        list_drawings = []
+        # Looking for the class file using the class name
+        class_filename = re.search(class_name, classes_files)
+        class_filepath = f"{dataset_local_path}/{class_filename}"
+        # Counting the drawings in the class and computing the number to extract
+        nb_drawings_in_class = int(re.search(r'\d+', str(subprocess.check_output(['wc', '-l', class_filepath]))).group())
+        nb_drawings_to_load = int(nb_drawings_in_class * pc_within_class / 100)
+        # Build a list of the random line numbers to use within that class
+        drawings_to_load = random.sample(range(nb_drawings_in_class), nb_drawings_to_load)
+        # Copying the randomly selected drawings to a new class file
+        for i in drawings_to_load:
+            json_drawing = ujson.loads(linecache.getline(class_filepath, i+1 , module_globals=None))
+            list_drawings.append(json_drawing)
+        linecache.clearcache()
+        tqdm_class_names.set_description(f"Extracting {pc_within_class} percent of {class_name}")
+        save_drawings_to_ndjson_local(list_drawings, output_file=f"{subset_local_path}/{pc_within_class}pc_{class_filename}")
