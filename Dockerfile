@@ -23,3 +23,35 @@ COPY Makefile Makefile
 
 #CMD uvicorn Pictionary.api.fast:app --host 0.0.0.0
 CMD uvicorn pictionary-ai.api.fast:app --host 0.0.0.0 --port $PORT
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
