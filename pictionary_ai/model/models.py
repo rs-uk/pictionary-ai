@@ -53,6 +53,7 @@ def model_bidirectional() -> Model:
 
     return model
 
+
 def model_LTSM() -> Model:
     """
     Initialize the Neural Network with random weights

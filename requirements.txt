@@ -4,6 +4,7 @@ ipdb
 ipykernel
 jupyter
 jupyterlab
+ujson
 
 numpy
 pandas
