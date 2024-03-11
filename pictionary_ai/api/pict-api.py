@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pictionary_ai.main import preprocessor
 import ujson
 import requests
+import numpy as np
 
 
 app = FastAPI()
@@ -31,8 +32,8 @@ async def get_json(request: Request):
     # Process the drawing to the expect list format
     list_processed_drawing = (preprocessor.process_drawing_data(json_drawing)).tolist()
     # Should we pad the drawing??
-    # list_padded_drawing = preprocessor.add_padding(list_processed_drawing)
-    # X_processed =
+    list_padded_drawing = preprocessor.add_padding(list_processed_drawing)
+    X_processed = np.expand_dims(list_padded_drawing,0)
     # y_pred = app.state.model.predict(X_processed)
 
     return json_drawing
