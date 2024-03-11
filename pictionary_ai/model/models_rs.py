@@ -1,3 +1,10 @@
+'''
+CHANGES MADE TO HONOR'S FILE: 
+Updated num_classes to 50 for new data set
+Updated file path for checkpoint data to models_1003_50classes
+
+'''
+
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras import layers
@@ -9,11 +16,16 @@ from colorama import Fore, Style
 import numpy as np
 import pandas as pd
 from typing import Tuple
-from pictionary_ai.params import *
 
+# this is the length we are padding too
+max_length = 150
 
 #no of classes we are using
-num_classes = 10
+##############################
+# 50 classes for RS version
+num_classes = 50
+##############################
+
 def model_bidirectional() -> Model:
     """
     Initialize the Neural Network with random weights, using bidirectional LTSM
@@ -27,7 +39,7 @@ def model_bidirectional() -> Model:
 
     # Add Masking layer to handle variable-length sequences
     #put in 99 as 0 may effect the data
-    model.add(layers.Masking(mask_value=99, input_shape=( MAX_LENGTH, 3)))
+    model.add(layers.Masking(mask_value=99, input_shape=( max_length, 3)))
 
     #do we want to customize backwards layer?
 
@@ -53,7 +65,6 @@ def model_bidirectional() -> Model:
 
     return model
 
-
 def model_LTSM() -> Model:
     """
     Initialize the Neural Network with random weights
@@ -64,7 +75,7 @@ def model_LTSM() -> Model:
 
     # Add Masking layer to handle variable-length sequences
     #put in 99 as 0 may effect the data
-    model.add(layers.Masking(mask_value=99, input_shape=(MAX_LENGTH, 3)))
+    model.add(layers.Masking(mask_value=99, input_shape=(max_length, 3)))
 
     # Add LSTM layers
     model.add(layers.LSTM(64, activation='tanh', return_sequences=True, dropout=0.2, recurrent_dropout=0.2))
@@ -95,11 +106,11 @@ def model_LTSM_conv() -> Model:
     '''model has conv1d layer and max pooling adn than LTSM, got this model from
     https://medium.com/@www.seymour/training-a-recurrent-neural-network-to-recognise-sketches-in-a
     realtime-game-of-pictionary-16c91e185ce6'''
-
+    
     model = Sequential()
 
       # Input layer
-    model.add(layers.Masking(mask_value=99, input_shape=(MAX_LENGTH, 3)))
+    model.add(layers.Masking(mask_value=99, input_shape=(max_length, 3)))
 
       # Masking layer
     model.add(layers.Masking(mask_value=99))
@@ -129,7 +140,7 @@ def model_LTSM_conv() -> Model:
       # Output layer
     model.add(layers.Dense(self.num_categories, activation='softmax'))
 
-
+    
     return model
 
 def compile_model(model: Model, learning_rate=0.0005) -> Model:
@@ -173,8 +184,11 @@ def train_model(
         verbose=1
     )
 
-    checkpoint_filepath = '/home/jupyter/lewagon_projects/pictionary-ai/raw_data/models'
+###### CHANGED MODEL CHECKPOINT FILE ######
+#    checkpoint_filepath = '/home/jupyter/lewagon_projects/pictionary-ai/raw_data/models'
+    checkpoint_filepath = '/home/jupyter/lewagon_projects/pictionary-ai/raw_data/models_1003_50classes'
 
+    
     #this will save the checkpoints in the checkpoint_filepath
     model_checkpoint_callback = callbacks.ModelCheckpoint(
     filepath=checkpoint_filepath,
