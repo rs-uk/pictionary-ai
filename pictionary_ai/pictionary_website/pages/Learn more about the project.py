@@ -25,8 +25,8 @@ st.link_button(":red[Simplified data]", "https://console.cloud.google.com/storag
 
 add_vertical_space(2)
 st.markdown("<h2 style='font-size: 1.5em; text-decoration: underline;'>How This Project Was Created</h2>", unsafe_allow_html=True)
-image_raw = '/Users/gregorytaylor/code/pictionary-ai/raw_data/raw_alarm_example.jpg'
-image_simp = '/Users/gregorytaylor/code/pictionary-ai/raw_data/simplified_alarm.jpg'
+image_raw = "https://storage.googleapis.com/pictionary-ai-website-bucket/raw_alarm_example.jpg"
+image_simp = "https://storage.googleapis.com/pictionary-ai-website-bucket/simplified_alarm.jpg"
 add_vertical_space(1)
 st.markdown(":red[Preprocessing]")
 
@@ -50,10 +50,10 @@ add_vertical_space(1)
 st.markdown('* We used a bidirectional Long Short-Term-Memory (LSTM) model that achieved  X %age accuracy across our data set')
 st.markdown("* This model is a type of reccurent neural network (RNN) that processes sequential data in both forwards and backwards directions")
 st.markdown('* This type of model was chosen to appropriately add weight to the beginning and ends of the drawings, as we thought these were the most important periods')
-image_model = '/Users/gregorytaylor/code/pictionary-ai/raw_data/model.jpg'
+image_model = "https://storage.googleapis.com/pictionary-ai-website-bucket/model.jpg"
 st.image(image_model)
 
-image_simplified = '/Users/gregorytaylor/code/pictionary-ai/raw_data/simplified.jpg'
+image_simplified = "https://storage.googleapis.com/pictionary-ai-website-bucket/simplified.jpg"
 add_vertical_space(3)
 st.markdown("* Below you can see a more simple visualisation of what's at play here")
 st.image(image_simplified)
@@ -67,5 +67,5 @@ st.markdown('* We managed to find a model where you can draw with a mouse on a c
 st.markdown('* - This input contains the delta of X and y as points from the drawing, and the start and stop of the stroke as the third feature.')
 st.markdown('* - The canvas is very customisable and allows  us to change things like the colour of the marker, to make the website more fun and interactive')
 add_vertical_space(10)
-image1 = '/Users/gregorytaylor/code/pictionary-ai/raw_data/preview.jpg'
+image1 = 'https://storage.googleapis.com/pictionary-ai-website-bucket/preview.jpg'
 st.image(image1, width=730)
