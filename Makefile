@@ -10,7 +10,7 @@ reinstall_package:
 	@pip uninstall -y pictionary_ai || :
 	@pip install -e .
 
-run_download_simplified_dataset:
+download_simplified_dataset:
 	python -c 'from pictionary_ai.interface.main import download_simplified_dataset; download_simplified_dataset()'
 
 run_preprocess_simplified_dataset:
@@ -32,8 +32,10 @@ run_build_and_split_subset:
 	python -c 'from pictionary_ai.interface.main import generate_subset_Xy, split_Xy; split_Xy(generate_subset_Xy())'
 
 run_train_model:
-	python -c 'from pictionary_ai.interface.main import train_model; train_model()'
+	python -c 'from pictionary_ai.interface.main import train_model_calling; train_model_calling()'
 
-# reset_local_files:
-# 	rm -rf $(LOCAL_DATA_PATH)
-# 	python -c 'from pictionary_ai import params'
+
+############### Data actions ####################
+.PHONY: erase_local_processed_files
+erase_local_processed_files:
+	@bash erase_processed_data.sh
