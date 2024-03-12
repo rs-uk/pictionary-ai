@@ -16,7 +16,11 @@ def list_bucket_contents(bucket_name:str, prefix_blob:str = None) -> dict:
     return {blob.name: blob for blob in bucket.list_blobs(prefix=prefix_blob)}
 
 
-def compare_buckets(bucket_name1:str, bucket_name2:str, prefix_blobs1:str = None, prefix_blobs2:str = None) -> bool:
+def compare_buckets(bucket_name1:str,
+                    bucket_name2:str,
+                    prefix_blobs1:str = None,
+                    prefix_blobs2:str = None
+                    ) -> bool:
     '''
     Compare two buckets and return True if they are identical and/or an explanation.
     '''
@@ -36,7 +40,11 @@ def compare_buckets(bucket_name1:str, bucket_name2:str, prefix_blobs1:str = None
     return True, "Buckets are identical"
 
 
-def copy_bucket(source_bucket_name:str, destination_bucket_name:str, prefix_blobs_source:str = None, prefix_blobs_destination:str = None) -> None:
+def copy_bucket(source_bucket_name:str,
+                destination_bucket_name:str,
+                prefix_blobs_source:str = None,
+                prefix_blobs_destination:str = None
+                ) -> None:
     '''
     Copy all blobs from the source bucket to the destination bucket.
     '''
@@ -57,7 +65,9 @@ def copy_bucket(source_bucket_name:str, destination_bucket_name:str, prefix_blob
         destination_blob = source_bucket.copy_blob(blob, destination_bucket, new_name=destination_blob_name)
 
 
-def copy_bucket_objects_with_prefix(source_bucket_name, destination_bucket_name, prefix):
+def copy_bucket_objects_with_prefix(source_bucket_name,
+                                    destination_bucket_name,
+                                    prefix) -> None:
     # Create a client object
     client = storage.Client()
 
@@ -93,7 +103,11 @@ def list_blobs(bucket_name:str) -> list:
     return blob_names
 
 
-def download_blob_to_local_file(bucket_name:str, source_blob_name:str, destination_path:str, destination_file_name:str = None) -> None:
+def download_blob_to_local_file(bucket_name:str,
+                                source_blob_name:str,
+                                destination_path:str,
+                                destination_file_name:str = None
+                                ) -> None:
     '''
     Downloads a blob from the bucket.
     '''
@@ -117,7 +131,11 @@ def download_blob_to_local_file(bucket_name:str, source_blob_name:str, destinati
     blob.download_to_filename(destination_file_path)
 
 
-def upload_blob_from_local_file(source_path:str, source_file_name:str, bucket_name:str, destination_blob_name:str = None) -> None:
+def upload_blob_from_local_file(source_path:str,
+                                source_file_name:str,
+                                bucket_name:str,
+                                destination_blob_name:str = None
+                                ) -> None:
     '''
     Uploads a file to the bucket.
     '''

@@ -11,21 +11,31 @@ from sklearn.model_selection import train_test_split
 
 
 
-def download_simplified_dataset(source_bucket:str = BUCKET_NAME_DRAWINGS_SIMPLIFIED, destination_path:str = LOCAL_DATA_PATH) -> None:
+def download_simplified_dataset(source_bucket:str = BUCKET_NAME_DRAWINGS_SIMPLIFIED,
+                                prefix_blobs_source:str = None,
+                                destination_path:str = LOCAL_DATA_PATH
+                                ) -> None:
     '''
     Download the dataset on the machine for faster training.
     '''
     # Checking that the project's bucket matches the Google original one, if not copy Google data
-    bucket_ready, reason = compare_buckets(BUCKET_NAME_DRAWINGS_SIMPLIFIED, ORIGINAL_BUCKET_DRAWINGS, prefix_blobs2=ORIGINAL_BLOB_DRAWINGS_SIMPLIFIED_PREFIX)
+    bucket_ready, reason = compare_buckets(BUCKET_NAME_DRAWINGS_SIMPLIFIED,
+                                           ORIGINAL_BUCKET_DRAWINGS,
+                                           prefix_blobs1=prefix_blobs_source,
+                                           prefix_blobs2=ORIGINAL_BLOB_DRAWINGS_SIMPLIFIED_PREFIX
+                                           )
     if not bucket_ready:
         print(reason)
-        copy_bucket(ORIGINAL_BUCKET_DRAWINGS, BUCKET_NAME_DRAWINGS_SIMPLIFIED, prefix_blobs_source=ORIGINAL_BLOB_DRAWINGS_SIMPLIFIED_PREFIX)
+        copy_bucket(ORIGINAL_BUCKET_DRAWINGS,
+                    BUCKET_NAME_DRAWINGS_SIMPLIFIED,
+                    prefix_blobs_source=ORIGINAL_BLOB_DRAWINGS_SIMPLIFIED_PREFIX
+                    )
     # Initialize a client
     storage_client = storage.Client()
     # Get the bucket
     bucket = storage_client.bucket(source_bucket)
     # List the blobs in the bucket (to tqdm to display progress)
-    tqdm_blobs = tqdm(bucket.list_blobs())
+    tqdm_blobs = tqdm(bucket.list_blobs(prefix=prefix_blobs_source))
     # Define the destination folder and create it if not existent
     destination_folder_path = f"{destination_path}/{source_bucket}"
     if not os.path.exists(destination_folder_path):
@@ -37,7 +47,9 @@ def download_simplified_dataset(source_bucket:str = BUCKET_NAME_DRAWINGS_SIMPLIF
     print(f"Downloaded the bucket {source_bucket} locally")
 
 
-def preprocess_simplified_dataset(dataset_local_path:str = LOCAL_DRAWINGS_SIMPLIFIED_PATH, shuffle:bool = True) -> None:
+def preprocess_simplified_dataset(dataset_local_path:str = LOCAL_DRAWINGS_SIMPLIFIED_PATH,
+                                  shuffle:bool = True
+                                  ) -> None:
     '''
     Process the locally-stored simplified dataset and save the created NDJSON files
     into a separate folder.
@@ -102,7 +114,9 @@ def OHE_padded_dataset(dataset_local_path:str = LOCAL_DRAWINGS_SIMPLIFIED_PADDED
         save_drawings_to_ndjson_local(list_class_OHE, destination_folder_path)
 
 
-def preprocess_pad_OHE_simplified_dataset(dataset_local_path:str = LOCAL_DRAWINGS_SIMPLIFIED_PATH, shuffle:bool = True, pc_within_class:int = PERCENT_CLASS, nb_classes:int = NUMBER_CLASSES) -> None:
+def preprocess_pad_OHE_simplified_dataset(dataset_local_path:str = LOCAL_DRAWINGS_SIMPLIFIED_PATH,
+                                          shuffle:bool = True
+                                          ) -> None:
     '''
     Process the locally-stored simplified dataset and save the created NDJSON files
     into a separate folder. The output is model-ready files for each class.
@@ -134,7 +148,11 @@ def preprocess_pad_OHE_simplified_dataset(dataset_local_path:str = LOCAL_DRAWING
         save_drawings_to_ndjson_local(list_drawings_OHE, f"{destination_folder_path}/{class_file}", silent=False)
 
 
-def generate_subset_Xy(dataset_local_path:str = LOCAL_DRAWINGS_SIMPLIFIED_PATH, pc_within_class:int = PERCENT_CLASS, nb_classes:int = NUMBER_CLASSES, list_classes:str = None) -> list:
+def generate_subset_Xy(dataset_local_path:str = LOCAL_DRAWINGS_SIMPLIFIED_PATH,
+                       pc_within_class:int = PERCENT_CLASS,
+                       nb_classes:int = NUMBER_CLASSES,
+                       list_classes:str = None
+                       ) -> list:
     '''
     Select a subset of the locally-stored quickdraw dataset, pulling the given percentage
     of drawings within each class. This shuffles the classes and the drawings within, and
@@ -260,13 +278,16 @@ def split_Xy(list_subset_drawings:list) -> dict:
     return dict_split_dataset
 
 
-def train_model(dataset_local_path:str = LOCAL_DRAWINGS_SIMPLIFIED_PATH, pc_within_class:int = PERCENT_CLASS, nb_classes:int = NUMBER_CLASSES) -> Tuple[Model, dict]:
+def train_model(dataset_local_path:str = LOCAL_DRAWINGS_SIMPLIFIED_PATH,
+                pc_within_class:int = PERCENT_CLASS,
+                nb_classes:int = NUMBER_CLASSES
+                ) -> Tuple[Model, dict]:
     '''
     Initialize, compile and train the model.
     '''
     model = initialize_model()
     model = compile_model(model, learning_rate=0.0005)
-    list_subset_drawings = generate_subset_Xy(dataset_local_path, pc_within_class=PERCENT_CLASS, nb_classes=NUMBER_CLASSES)
+    list_subset_drawings = generate_subset_Xy(dataset_local_path, pc_within_class=pc_within_class, nb_classes=nb_classes)
     dict_Xy = split_Xy(list_subset_drawings)
     model, history = train_model(model,
                                  X = np.ndarray(dict_Xy['X_train']),
