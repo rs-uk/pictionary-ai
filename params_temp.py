@@ -31,4 +31,3 @@ BUCKET_NAME_MODELS= 'model_saved_pictionaryai'
 LOCAL_REGISTRY_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "mlops","training_outputs")
 
 
-T

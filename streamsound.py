@@ -49,7 +49,7 @@ def tts():
     Function Implementation:
         st.title("Automatic Text-to-Speech Demo"): Sets the title of the Streamlit app.
         user_input = st.text_input("Enter a word:"): Creates a text input field where the user can enter a word or text.
-        if user_input:: Checks if the user input is not empty.
+        if user_input:: Checks if the user input is not empty and execure inner function play_word().
         tts = gTTS(text=user_input, lang="en", slow=False): Creates a gTTS object with the user input text and English language.
         audio_bytes = io.BytesIO(): Initializes an in-memory byte stream to store the audio data.
         tts.write_to_fp(audio_bytes): Writes the audio data to the byte stream.
@@ -60,20 +60,20 @@ def tts():
         The gTTS library converts the input to audio and stores it in the audio_bytes object.
         The autoplay_audio function plays the audio automatically.
     '''
-    st.title("Automatic Text-to-Speech Demo")
+    st.title("Automatic Text-to-Speech Demo")    
     
-    while True:
-        user_input = st.text_input("Enter a word:", key="user_input")  # Add a unique key
-
-            # Check if the user input is not empty
-        if user_input:
-            tts = gTTS(text=user_input, lang="en", slow=False)
-            audio_bytes = io.BytesIO()
-            tts.write_to_fp(audio_bytes)
-            #st.audio(audio_bytes, format="audio/mp3", start_time=0)
-            audio_bytes.seek(0) 
-            autoplay_audio(audio_bytes)
-   
-
+    def play_word(user_input):
+        tts = gTTS(text=user_input, lang="es", tld="es", slow=False)
+        audio_bytes = io.BytesIO()
+        tts.write_to_fp(audio_bytes)
+        #st.audio(audio_bytes, format="audio/mp3", start_time=0)
+        audio_bytes.seek(0) 
+        autoplay_audio(audio_bytes)
+    
+    user_input = st.text_input("Enter a word:", key="user_input")  # Add a unique key
+    
+    if user_input:
+        play_word(user_input)
+      
 if __name__ == "__main__":
     tts()
