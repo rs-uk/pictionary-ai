@@ -6,63 +6,80 @@ import re, os, subprocess
 import ujson # much faster than json lib for simple tasks
 
 
-
-def list_bucket_contents(bucket_name:str, prefix_blob:str = None) -> dict:
+def list_bucket_contents(bucket_name:str) -> list:
     '''
     Return a dictionary of the blobs in a bucket.
     '''
     client = storage.Client()
     bucket = client.get_bucket(bucket_name)
-    return {blob.name: blob for blob in bucket.list_blobs(prefix=prefix_blob)}
+    blobs = bucket.list_blobs()
+    return [blob.name for blob in blobs]
 
 
-def compare_buckets(bucket_name1:str,
-                    bucket_name2:str,
-                    prefix_blobs1:str = None,
-                    prefix_blobs2:str = None
-                    ) -> bool:
+def compare_buckets(bucket1_name:str,
+                    bucket2_name:str,
+                    folder1_path:str = None,
+                    folder2_path:str = None
+                    ) -> tuple:
     '''
-    Compare two buckets and return True if they are identical and/or an explanation.
+    Compare two buckets (or folders in those buckets) and return True if they are identical and/or an explanation.
+    The folder paths should be such as 'first/second/third/target_folder'.
     '''
-    bucket1_contents = list_bucket_contents(bucket_name1, prefix_blob=prefix_blobs1)
-    bucket2_contents = list_bucket_contents(bucket_name2, prefix_blob=prefix_blobs2)
-    # Check if the number of objects in the buckets match
-    if len(bucket1_contents) != len(bucket2_contents):
-        return False, "Bucket sizes are different"
-    # Check if each object in bucket1 exists in bucket2
-    for object_name, blob1 in bucket1_contents.items():
-        blob2 = bucket2_contents.get(object_name)
-        if blob2 is None:
-            return False, f"Object {object_name} is missing in {bucket_name2}"
-        # Check if object metadata matches
-        if blob1.size != blob2.size or blob1.content_type != blob2.content_type:
-            return False, f"Metadata for object {object_name} differs"
+    bucket1_contents = set(list_bucket_contents(bucket1_name))
+    bucket2_contents = set(list_bucket_contents(bucket2_name))
+
+    if folder1_path is not None:
+        folder1_path = folder1_path + '/'
+    else:
+        folder1_path = ''
+    if folder2_path is not None:
+        folder2_path = folder2_path + '/'
+    else:
+        folder2_path = ''
+
+    folder1_contents = {item.removeprefix(folder1_path) for item in bucket1_contents if item.startswith(folder1_path)}
+    folder2_contents = {item.removeprefix(folder2_path) for item in bucket2_contents if item.startswith(folder2_path)}
+
+    str_path1 = '/'.join((bucket1_name, folder1_path))
+    str_path2 = '/'.join((bucket2_name, folder2_path))
+
+    # Check if the objects in the folders are the same:
+    if folder1_contents != folder2_contents:
+        warning = f"Files in {str_path1} but not in {str_path2}:\n \
+                    {folder1_contents - folder2_contents} \n \
+                    Files in {str_path2} but not in {str_path1}:\n \
+                    {folder2_contents - folder1_contents}"
+        return False, warning
+
     return True, "Buckets are identical"
 
 
-def copy_bucket(source_bucket_name:str,
-                destination_bucket_name:str,
-                prefix_blobs_source:str = None,
-                prefix_blobs_destination:str = None
+def copy_bucket(bucket1_name:str,
+                bucket2_name:str,
+                folder1_path:str = None,
+                folder2_path:str = None
                 ) -> None:
     '''
-    Copy all blobs from the source bucket to the destination bucket.
+    Copy all blobs from bucket1_name/folder1_path to bucket2_name/folder2_path.
     '''
     # Initialize clients for source and destination buckets
-    source_client = storage.Client()
-    destination_client = storage.Client()
+    client1 = storage.Client()
+    client2 = storage.Client()
 
     # Get the source and destination buckets
-    source_bucket = source_client.get_bucket(source_bucket_name)
-    destination_bucket = destination_client.get_bucket(destination_bucket_name)
+    bucket1 = client1.get_bucket(bucket1_name)
+    bucket2 = client2.get_bucket(bucket2_name)
 
     # List blobs in the source bucket (to tqdm to show copy progress)
-    blobs = tqdm(source_bucket.list_blobs(prefix=prefix_blobs_source))
+    blobs = tqdm(bucket1.list_blobs(prefix=folder1_path))
 
     # Copy each blob to the destination bucket
     for blob in blobs:
-        destination_blob_name = blob.name.replace(prefix_blobs_source, prefix_blobs_destination, 1)
-        destination_blob = source_bucket.copy_blob(blob, destination_bucket, new_name=destination_blob_name)
+        if folder2_path is not None:
+            destination_blob_name = blob.name.replace(folder1_path, folder2_path, 1)
+        else:
+            destination_blob_name = blob.name
+        destination_blob = bucket1.copy_blob(blob, bucket2, new_name=destination_blob_name)
 
 
 def copy_bucket_objects_with_prefix(source_bucket_name,

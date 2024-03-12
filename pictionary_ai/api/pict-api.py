@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pictionary_ai.main import preprocessor
+from pictionary_ai.model import models
 import ujson
 import requests
 import numpy as np
@@ -42,20 +43,30 @@ app.add_middleware(CORSMiddleware,
                    )
 
 
+# Initialize the model
+model = models.initialize_model()
+# Compile the model
+model = models.compile_model(model)
+# Load weights
+model.load_weights('../../raw_data/models/models')
+#we need the models at the end- as name of model and need it
+
+
 @app.get("/home")
 def homepage():
 
     return "Welcome to the pictionary ai api"
 
 # get canvas capture and send back to streamlit the JSON
-@app.post("/api")
-async def get_json(request: Request):
+@app.post("/predict")
+async def get_prediction(request: Request) -> dict:
     # Get the drawing at the end of each new stroke
     json_drawing = await request.json()
     # Process the drawing to the expect list format
     list_processed_drawing = (preprocessor.process_drawing_data(json_drawing)).tolist()
     # Should we pad the drawing??
     list_padded_drawing = preprocessor.add_padding(list_processed_drawing)
+
     X_processed = np.expand_dims(list_padded_drawing,0)
 
     #predict - this is gonna give me an array with the percentage that is in each class
@@ -63,9 +74,7 @@ async def get_json(request: Request):
     prediction = np.argmax(res)
     # this will rturn the index of the highest percentage prediction, we need to map this to its key
 
-    # y_pred = app.state.model.predict(X_processed)
-
-    return_dict = {'result':str(res)
-                   , 'prediction': str(prediction), 'class':str(dict_10_classes[int(eval(res.decode())['prediction'])])}
+    prediction = np.argmax(res)
+    return_dict = {'result': str(res), 'prediction': str(prediction)}
 
     return return_dict

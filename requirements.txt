@@ -34,4 +34,4 @@ uvicorn
 tqdm
 
 # Performance
-cuda-python
+# cuda-python
