@@ -43,8 +43,8 @@ def homepage():
     return "Welcome to the pictionary ai api"
 
 # get canvas capture and send back to streamlit the JSON
-@app.post("/api")
-async def get_json(request: Request):
+@app.post("/predict")
+async def get_prediction(request: Request):
     # Get the drawing at the end of each new stroke
     json_drawing = await request.json()
     # Process the drawing to the expect list format
@@ -61,6 +61,6 @@ async def get_json(request: Request):
     # y_pred = app.state.model.predict(X_processed)
 
     return_dict = {'result':str(res)
-                   , 'prediction': str(prediction), 'class':str(dict_10_classes[int(eval(res.decode())['prediction'])])}
+                   , 'prediction': str(prediction)}
 
     return return_dict
