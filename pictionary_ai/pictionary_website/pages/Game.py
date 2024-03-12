@@ -65,7 +65,7 @@ image1 = '/Users/gregorytaylor/code/pictionary-ai/raw_data/preview.jpg'
 st.image(image1, width=710)
 
 #trying to add in prediction
-predict_url = "http://localhost:8080/api"
+predict_url = "http://localhost:8080/predict"
 
 post_dict = #this is the dictionary received from loic
 res = requests.post(url=predict_url, json=post_dict, headers={'Content-Type':'application/json'})
