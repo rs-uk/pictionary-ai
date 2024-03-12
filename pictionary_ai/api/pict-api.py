@@ -7,6 +7,17 @@ import numpy as np
 
 
 from pictionary_ai.model import models_rs
+dictionary = {"aircraft carrier": 0, "arm": 1, "asparagus": 2, "backpack": 3,
+              "banana": 4, "basketball": 5, "bottlecap": 6, "bread": 7, "broom": 8,
+              "bulldozer": 9, "butterfly": 10, "camel": 11, "canoe": 12, "chair": 13,
+              "compass": 14, "cookie": 15, "drums": 16, "eyeglasses": 17, "face": 18,
+              "fan": 19, "fence": 20, "fish": 21, "flying saucer": 22, "grapes": 23,
+              "hand": 24, "hat": 25, "horse": 26, "light bulb": 27, "lighthouse": 28,
+              "line": 29, "marker": 30, "mountain": 31, "mouse": 32, "parachute": 33,
+              "passport": 34, "pliers": 35, "potato": 36, "sea turtle": 37, "snowflake": 38,
+              "spider": 39, "square": 40, "steak": 41, "swing set": 42, "sword": 43,
+              "telephone": 44, "television": 45, "tooth": 46, "traffic light": 47, "trumpet": 48, "violin": 49}
+reversed_dict = {v: k for k, v in dictionary.items()}
 
 
 # initiate model
@@ -16,20 +27,7 @@ model = models_rs.compile_model(model)
 model.load_weights('../raw_data/models/models_1003_50classes')
 
 
-from pictionary_ai.model import models
-
-
 #we need the models at the end- as name of model and need it
-dict_10_classes = {0: 'The Eiffel Tower',
- 1: 'The Great Wall of China',
- 2: 'The Mona Lisa',
- 3: 'aircraft carrier',
- 4: 'airplane',
- 5: 'alarm clock',
- 6: 'ambulance',
- 7: 'angel',
- 8: 'animal migration',
- 9: 'ant'}
 
 
 app = FastAPI()
@@ -64,11 +62,19 @@ async def get_prediction(request: Request):
     #predict - this is gonna give me an array with the percentage that is in each class
     res = model.predict(X_processed)[0]
     prediction = np.argmax(res)
+
+    prob_dict = {}
+
+    for key_, prob in zip(dictionary.keys(),res):
+
+        prob_dict[key_]= str(np.round(prob,3))
+
+    print(prediction)
     # this will rturn the index of the highest percentage prediction, we need to map this to its key
 
     # y_pred = app.state.model.predict(X_processed)
 
-    return_dict = {'result':str(res)
-                   , 'prediction': str(prediction)}
+    return_dict = {'result':str(res), 'prob': str(np.max(res))
+                   , 'prediction': str(prediction), 'probabilities':str(prob_dict)}
 
     return return_dict

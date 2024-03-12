@@ -5,7 +5,7 @@ import requests
 import streamlit as st
 import time
 
-# from streamlit_extras.add_vertical_space import add_vertical_space
+from streamlit_extras.add_vertical_space import add_vertical_space
 
 
 # image_path = "/Users/gregorytaylor/code/pictionary-ai/pictionary_ai.jpg"
