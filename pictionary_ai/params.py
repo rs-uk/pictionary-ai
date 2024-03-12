@@ -23,6 +23,7 @@ if not os.path.exists(LOCAL_DATA_PATH):
     os.makedirs(LOCAL_DATA_PATH)
 
 # Define the local directories based off the number of classes and ratio used in training
+
 LOCAL_DRAWINGS_SIMPLIFIED_PATH = '/'.join((LOCAL_DATA_PATH, BUCKET_NAME_DRAWINGS_SIMPLIFIED))
 LOCAL_DRAWINGS_SIMPLIFIED_PREPROCESSED_PATH = f"{LOCAL_DATA_PATH}/preprocessed_{BUCKET_NAME_DRAWINGS_SIMPLIFIED}_{NUMBER_CLASSES}classes_{PERCENT_CLASS}pc"
 LOCAL_DRAWINGS_SIMPLIFIED_PADDED_PATH = f"{LOCAL_DATA_PATH}/padded_{BUCKET_NAME_DRAWINGS_SIMPLIFIED}_{NUMBER_CLASSES}classes_{PERCENT_CLASS}pc"
@@ -33,3 +34,4 @@ LOCAL_DRAWINGS_SIMPLIFIED_MODELREADY_PATH = f"{LOCAL_DATA_PATH}/model-ready_{BUC
 
 # Define the local directory to save the model
 MODELS_PATH = '/'.join((LOCAL_DATA_PATH, 'models'))
+

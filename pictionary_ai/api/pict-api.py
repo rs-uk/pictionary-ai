@@ -4,14 +4,19 @@ from pictionary_ai.main import preprocessor
 import ujson
 import requests
 import numpy as np
-from pictionary_ai.model import models
+
+from pictionary_ai.model import models_rs
 
 
 # initiate model
-model = models.model_bidirectional()
-model = models.compile_model(model)
+model = models_rs.model_bidirectional()
+model = models_rs.compile_model(model)
 #load wieghts
-model.load_weights('../raw_data/models/models')
+model.load_weights('../raw_data/models/models_1003_50classes')
+=======
+from pictionary_ai.model import models
+
+
 #we need the models at the end- as name of model and need it
 dict_10_classes = {0: 'The Eiffel Tower',
  1: 'The Great Wall of China',
