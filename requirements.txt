@@ -32,3 +32,6 @@ uvicorn
 
 # Prettify
 tqdm
+
+# Performance
+cuda-python

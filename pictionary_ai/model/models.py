@@ -1,57 +1,143 @@
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.optimizers import Adam
-from tensorflow.keras import layers
-from tensorflow.keras import callbacks
-from tensorflow.keras import utils
-from keras import Model, Sequential, layers, regularizers, optimizers
-from sklearn.preprocessing import TargetEncoder
+# from keras.models import Sequential
+# from keras import Sequential
+from tensorflow.python.keras.models import Sequential
+# from keras.optimizers import Adam
+from tensorflow.python.keras.optimizers import adam_v2
+from tensorflow.python.keras import callbacks
+# from tensorflow.python.keras import utils
+# from keras import Sequential
+from keras import Model, layers
+# from keras import optimizers, regularizers
+# from tensorflow.python.keras import layers
+# from sklearn.preprocessing import TargetEncoder
 from colorama import Fore, Style
 import numpy as np
-import pandas as pd
 from typing import Tuple
 from pictionary_ai.params import *
 
 
-#no of classes we are using
-num_classes = 10
-def model_bidirectional() -> Model:
-    """
+def initialize_model() -> Model:
+    '''
     Initialize the Neural Network with random weights, using bidirectional LTSM
-    masking layer
-    it has 2 Bidirectional LSTM layers
-    3 dense layers
-    and dropout layers
-    """
-
+    masking layer.
+    We use:
+        - 2 Bidirectional LSTM layers
+        - 3 dense layers
+        - dropout layers between all dense layers
+    '''
     model = Sequential()
 
     # Add Masking layer to handle variable-length sequences
-    #put in 99 as 0 may effect the data
-    model.add(layers.Masking(mask_value=99, input_shape=( MAX_LENGTH, 3)))
+    model.add(layers.Masking(mask_value=PADDING_VALUE, input_shape=(MAX_LENGTH, 3)))
 
-    #do we want to customize backwards layer?
-
+    # Bidirectional LSTM layers with dropout option
     model.add(layers.Bidirectional(layers.LSTM(196, dropout=0.2, recurrent_dropout=0.2, return_sequences=True)))
     model.add(layers.Bidirectional(layers.LSTM(64, dropout=0.2, recurrent_dropout=0.2)))
 
-    # Add Dense layers
+    # Dense layers with Dropout layers
     model.add(layers.Dense(128, activation='linear'))
-    #dropoutlayer
     model.add(layers.Dropout(rate=0.2))
     model.add(layers.Dense(64, activation='linear'))
-    #dropoutlayer
     model.add(layers.Dropout(rate=0.2))
     model.add(layers.Dense(32, activation='linear'))
-    #dropoutlayer
     model.add(layers.Dropout(rate=0.2))
 
-    # Add final Softmax layer
-    model.add(layers.Dense(num_classes, activation='softmax'))
-    # Replace 'num_classes' with the actual number of classes in your problem
+    # Categarization layer with the correct input size as the number of classes used in training
+    model.add(layers.Dense(NUMBER_CLASSES, activation='softmax'))
 
     print("✅ Model initialized")
 
     return model
+
+
+def compile_model(model: Model, learning_rate=0.0005) -> Model:
+    '''
+    Compile the Neural Network with loss categorical_crossentropy,
+    optimiser Adam, and accuracy for the metric.
+    Return the compiled model.
+    '''
+    optimizer = adam_v2(learning_rate=learning_rate)
+    model.compile(loss="categorical_crossentropy", optimizer=optimizer, metrics=["accuracy"])
+
+    print("✅ Model compiled")
+
+    return model
+
+
+def train_model(model: Model,
+                X: np.ndarray,
+                y: np.ndarray,
+                batch_size=256,
+                patience=3,
+                validation_data=None, # overrides validation_split
+                validation_split=0.3
+                ) -> Tuple[Model, dict]:
+    '''
+    Fit the model and return a tuple (fitted_model, history).
+    We save checkpoints as well.
+    '''
+    print(Fore.BLUE + "\nTraining model..." + Style.RESET_ALL)
+
+    es = callbacks.EarlyStopping(monitor="val_accuracy",
+                                 patience=patience,
+                                 restore_best_weights=True,
+                                 verbose=1
+                                 )
+
+    model_checkpoint_callback = callbacks.ModelCheckpoint(filepath=MODELS_PATH,
+                                                          save_weights_only=True,
+                                                          monitor='val_accuracy',
+                                                          mode='max',
+                                                          save_best_only=True
+                                                          )
+
+    history = model.fit(X,
+                        y,
+                        validation_data=validation_data,
+                        validation_split=validation_split,
+                        epochs=50,
+                        batch_size=batch_size,
+                        callbacks=[es, model_checkpoint_callback],
+                        verbose=1
+                        )
+
+    print(f"✅ Model trained on {len(X)} drawings in {NUMBER_CLASSES} classes, with min val accuracy: {round(np.min(history['history']['accuracy']), 2)}")
+
+    return model, history
+
+
+def evaluate_model(model: Model,
+                   X: np.ndarray,
+                   y: np.ndarray,
+                   batch_size=64
+                   ) -> list:
+    '''
+    Evaluate trained model performance on the test subset, return metrics.
+    '''
+
+    print(Fore.BLUE + f"\nEvaluating model on {len(X)} rows..." + Style.RESET_ALL)
+
+    if model is None:
+        print(f"\n❌ No model to evaluate")
+        return None
+
+    metrics = model.evaluate(X=X,
+                             y=y,
+                             batch_size=batch_size,
+                             verbose=0,
+                             return_dict=True
+                             )
+
+    loss = metrics["loss"]
+    accuracy = metrics["accuracy"]
+
+    print(f"✅ Model evaluated, accuracy: {round(accuracy, 2)}")
+
+    return metrics
+
+
+
+
 
 
 def model_LTSM() -> Model:
@@ -84,8 +170,8 @@ def model_LTSM() -> Model:
     model.add(layers.Dropout(rate=0.2))
 
     # Add final Softmax layer
-    model.add(layers.Dense(num_classes, activation='softmax'))
-    # Replace 'num_classes' with the actual number of classes in your problem
+    model.add(layers.Dense(NUMBER_CLASSES, activation='softmax'))
+    # Replace 'NUMBER_CLASSES' with the actual number of classes in your problem
 
     print("✅ Model initialized")
 
@@ -131,103 +217,3 @@ def model_LTSM_conv() -> Model:
 
 
     return model
-
-def compile_model(model: Model, learning_rate=0.0005) -> Model:
-    """
-    Compile the Neural Network
-    with loss categorical_crossentropy, optimiser adam, metrics, accuracy
-    returns model
-    """
-    #what loss do we want?
-    #i think should be using categorical
-    #which metrics?
-    #do i want to create my own and what are the advantages of this
-
-    optimizer = Adam(learning_rate=learning_rate)
-    model.compile(loss="categorical_crossentropy", optimizer=optimizer, metrics=["accuracy"])
-
-    # look at custum loss function
-    print("✅ Model compiled")
-
-    return model
-
-def train_model(
-        model: Model,
-        X: np.ndarray,
-        y: np.ndarray,
-        batch_size=256,
-        patience=3,
-        validation_data=None, # overrides validation_split
-        validation_split=0.3
-    ) -> Tuple[Model, dict]:
-    """
-    Fit the model and return a tuple (fitted_model, history)
-    added in checkpoint as well
-    """
-    print(Fore.BLUE + "\nTraining model..." + Style.RESET_ALL)
-
-    es = callbacks.EarlyStopping(
-        monitor="val_accuracy",
-        patience=patience,
-        restore_best_weights=True,
-        verbose=1
-    )
-
-    checkpoint_filepath = '/home/jupyter/lewagon_projects/pictionary-ai/raw_data/models'
-
-    #this will save the checkpoints in the checkpoint_filepath
-    model_checkpoint_callback = callbacks.ModelCheckpoint(
-    filepath=checkpoint_filepath,
-    save_weights_only=True,
-    monitor='val_accuracy',
-    mode='max',
-    save_best_only=True)
-
-    #in fit is where we put in the padding, cant remember how
-    history = model.fit(
-        X,
-        y,
-        validation_data=validation_data,
-        validation_split=validation_split,
-        epochs=50,
-        batch_size=batch_size,
-        callbacks=[es, model_checkpoint_callback],
-        verbose=1
-    )
-
-    print(f"✅ Model trained on {len(X)} rows with min val accuracy: {round(np.min(history.history['accuracy']), 2)}")
-
-    return model, history
-
-
-def evaluate_model(
-        model: Model,
-        X: np.ndarray,
-        y: np.ndarray,
-        batch_size=64
-    ) -> Tuple[Model, dict]:
-    """
-    Evaluate trained model performance on the dataset, returns metrics
-    """
-
-    print(Fore.BLUE + f"\nEvaluating model on {len(X)} rows..." + Style.RESET_ALL)
-
-    if model is None:
-        print(f"\n❌ No model to evaluate")
-        return None
-
-    metrics = model.evaluate(
-        x=X,
-        y=y,
-        batch_size=batch_size,
-        verbose=0,
-        # callbacks=None,
-        return_dict=True
-    )
-
-    loss = metrics["loss"]
-    accuracy = metrics["accuracy"]
-
-    print(f"✅ Model evaluated, accuracy: {round(accuracy, 2)}")
-
-    return metrics
