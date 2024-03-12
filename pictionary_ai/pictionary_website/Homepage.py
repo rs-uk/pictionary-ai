@@ -6,30 +6,30 @@ import requests
 import streamlit as st
 import time
 
-from streamlit_extras.add_vertical_space import add_vertical_space
+# from streamlit_extras.add_vertical_space import add_vertical_space
 
-image_path = "/Users/gregorytaylor/code/pictionary-ai/pictionary_ai.jpg"
+# image_path = "/Users/gregorytaylor/code/pictionary-ai/pictionary_ai.jpg"
 
-st.set_page_config(page_icon=":shark:")
-
-
-
-backgroundColor = "#F0F0F0"
+# st.set_page_config(page_icon=":shark:")
 
 
 
-
-st.markdown("<h1 style='text-align: center;'>Pictionary AI</h1>", unsafe_allow_html=True)
+# backgroundColor = "#F0F0F0"
 
 
 
 
-st.image(image_path, use_column_width=True)
+# st.markdown("<h1 style='text-align: center;'>Pictionary AI</h1>", unsafe_allow_html=True)
 
-st.markdown("<h1 style='text-align: center; font-weight: normal; font-size: 22px;'>Welcome to Pictionary AI, the transformative new website that can predict your drawings!</h1>", unsafe_allow_html=True)
 
-st.markdown("<h1 style='text-align: center; font-weight: normal; font-size: 14px;'>You have 20 seconds to draw whatever image we give to you. After that we will test it to see if your drawing is good     enough for the AI model to match it.</h1>"
-, unsafe_allow_html=True)
+
+
+# st.image(image_path, use_column_width=True)
+
+# st.markdown("<h1 style='text-align: center; font-weight: normal; font-size: 22px;'>Welcome to Pictionary AI, the transformative new website that can predict your drawings!</h1>", unsafe_allow_html=True)
+
+# st.markdown("<h1 style='text-align: center; font-weight: normal; font-size: 14px;'>You have 20 seconds to draw whatever image we give to you. After that we will test it to see if your drawing is good     enough for the AI model to match it.</h1>"
+# , unsafe_allow_html=True)
 
 
 

@@ -11,6 +11,8 @@ pandas
 matplotlib
 seaborn
 scikit-learn
+streamlit_extras
+streamlit_drawable_canvas
 
 # Tensoflow packages
 # Trick to install the version of Tensorflow depending on your processor: darwin == Mac, ARM == M1

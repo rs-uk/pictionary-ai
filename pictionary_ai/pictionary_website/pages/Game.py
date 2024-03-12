@@ -5,6 +5,89 @@ from streamlit_extras.let_it_rain import rain
 import requests
 import random
 
+
+import pandas as pd
+from PIL import Image
+import streamlit as st
+from streamlit_drawable_canvas import st_canvas
+import json
+import requests
+from params import *
+import matplotlib.pyplot as plt
+import random
+
+
+# Create a canvas component
+canvas_result = st_canvas(
+    fill_color="rgba(255, 165, 0, 0.3)",  # Fixed fill color with some opacity
+    stroke_width=3, # this can be adjusted during testing
+    stroke_color='#000000', # we only want to draw in black
+    background_color='#ffffff', # we set the background color to white
+    background_image=None, # we do not need a backgorund image on the canvas
+    update_streamlit=True, # we want the output to be live
+    height=400,
+    width=600,
+    drawing_mode='freedraw', # we only want that option from st_canvas
+    point_display_radius=0, # we only care about freedraw mode here
+    key="canvas"
+)
+
+
+# Show the outputs on streamlit
+if canvas_result.json_data is not None:
+    # need to convert obj to str because of PyArrow
+    objects = pd.json_normalize(canvas_result.json_data["objects"])
+    for col in objects.select_dtypes(include=['object']).columns:
+        objects[col] = objects[col].astype("str")
+    # st.dataframe(objects)
+
+
+# Show the resulting JSON on streamlit
+st.json(canvas_result.json_data['objects'])
+
+
+# Extract the drawing and process to match the expected format
+outputs = canvas_result.json_data['objects']
+lst_strokes = []
+# Going stroke by stroke:
+for stroke in outputs:
+    stroke = stroke['path'] # we only want the 'path' of the stroke in the JSON
+    xs = []
+    ys = []
+    for step in stroke: # the steps are either one or two points
+        # Build list of xs and ys.
+        # Only 1 point for the first and last steps of each stroke ('M' and 'L')
+        if step[0] == 'M' or step[0] == 'L':
+            xs.append(int(step[1]))
+            ys.append(int(step[2]))
+        # 2 points for the intermediary steps of each stroke ('Q')
+        elif step[0] == 'Q':
+            # Adding both sets of coords to x and y
+            xs.append(int(step[1]))
+            xs.append(int(step[3]))
+            ys.append(int(step[2]))
+            ys.append(int(step[4]))
+    lst_strokes.append([xs, ys])
+dict_strokes = {'drawing': lst_strokes}
+# Convert the dict to JSON
+json_drawing = json.dumps(dict_strokes)
+
+
+# Resampling the drawing (all strokes) based on time
+def resampling_time_post(json_drawing: json, step: int = 5) -> dict:
+    lst_strokes = json.loads(json_drawing)['drawing']
+    lst_strokes_resampled = []
+    for stroke in lst_strokes:
+        stroke_resampled = []
+        stroke_resampled.append(stroke[0][::step]) # resampled xs
+        stroke_resampled.append(stroke[1][::step]) # resampled ys
+        lst_strokes_resampled.append(stroke_resampled)
+    dict_strokes_resampled = {'drawing': lst_strokes_resampled}
+    return dict_strokes_resampled
+
+
+
+
 st.set_page_config(page_icon=":pencil:")
 
 st.title('Pictionary :blue[AI] :pencil:')
@@ -61,13 +144,13 @@ if __name__ == "__main__":
 
 add_vertical_space(10)
 
-image1 = '/Users/gregorytaylor/code/pictionary-ai/raw_data/preview.jpg'
-st.image(image1, width=710)
+#image1 = '/Users/gregorytaylor/code/pictionary-ai/raw_data/preview.jpg'
+#st.image(image1, width=710)
 
 #trying to add in prediction
 predict_url = "http://localhost:8080/predict"
 
-post_dict = #this is the dictionary received from loic
+post_dict = resampling_time_post(json_drawing)
 res = requests.post(url=predict_url, json=post_dict, headers={'Content-Type':'application/json'})
 #this request returns a dictionary with the array of percentages and the hgihest class
 
