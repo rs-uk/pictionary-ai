@@ -35,3 +35,7 @@ tqdm
 
 # Performance
 # cuda-python
+
+#CNN model
+opencv-python
+simplification
