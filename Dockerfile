@@ -10,7 +10,7 @@ COPY requirements_production.txt requirements.txt
 RUN pip install -r requirements.txt
 
 #install raw data
-COPY raw_data raw_data
+COPY shared_data shared_data
 
 # install pictionary_ai package
 COPY pictionary_ai /pictionary_ai
