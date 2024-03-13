@@ -8,7 +8,7 @@ import os
 #####################  CONSTANTS  #####################
 MAX_LENGTH = 150 # Max number of points we keep in a drawing for training and inference
 PADDING_VALUE = 99
-NUMBER_CLASSES = 2
+NUMBER_CLASSES = 50
 PERCENT_CLASS = 1
 
 # The Google-managed buckets with the quickdraw dataset
