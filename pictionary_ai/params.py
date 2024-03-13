@@ -15,7 +15,7 @@ if not os.path.exists(LOCAL_SHARED_DATA_PATH):
 
 MAX_LENGTH = 200 # Max number of points we keep in a drawing for training and inference
 PADDING_VALUE = 99
-NUMBER_CLASSES = 2
+NUMBER_CLASSES = 50
 PERCENT_CLASS = 25
 DICT_OHE = ujson.loads(linecache.getline(f"{LOCAL_SHARED_DATA_PATH}/dict_50_class_subset.json", 1, module_globals=None))
 
