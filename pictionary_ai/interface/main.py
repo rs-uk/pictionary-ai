@@ -6,7 +6,7 @@ from google.cloud import storage
 from tqdm.auto import tqdm
 from pathlib import Path
 import random
-import os
+import os, re
 from sklearn.model_selection import train_test_split
 from datetime import datetime
 
@@ -331,19 +331,68 @@ def split_Xy(list_subset_drawings:list) -> dict:
     return dict_split_dataset
 
 
-def train_model_calling(dataset_local_path:str = LOCAL_DRAWINGS_SIMPLIFIED_PATH,
-                pc_within_class:int = PERCENT_CLASS,
-                nb_classes:int = NUMBER_CLASSES,
-                list_classes:list = LIST_CLASSES, # overrides the nb_classes and uses the list in the shared data here
-                ) -> Tuple[Model, dict]:
+def load_model(checkpoint_path:str) -> dict:
+    ##### change the output to a compiled h5 model
+    '''
+    Return a dictionary dict_model with key-value pairs:
+        - model: Model, the pretrained model to use with its checkpoint, compiled
+        with its weigths loaded.
+        - params: dict, a dictionary of the params with key-value pairs:
+            - MAX_LENGTH: int, the length used for padding
+            - PADDING_VALUE: int, the value used for padding
+            - dict_OHE: dict, each key is a class name and each value is the
+            associated index in the OHE space
+    '''
+    if not os.path.exists(checkpoint_path):
+        print('The model directory does not exist.')
+
+    model_params_filepath = os.path.join(checkpoint_path, 'params_for_training.txt')
+    str_MAX_LENGTH = linecache.getline(model_params_filepath, 1, module_globals=None) # MAX_LENGTH stored on first line
+    str_PADDING_VALUE = linecache.getline(model_params_filepath, 2, module_globals=None) # PADDING_VALUE stored on second line
+    MAX_LENGTH = int(re.search(r'=(\d+)', str_MAX_LENGTH))
+    PADDING_VALUE = re.search(r'=(\d+)', str_PADDING_VALUE)
+    dict_OHE = ujson.loads(linecache.getline(model_params_filepath, 3, module_globals=None)) # dict_OHE stored as json on third line
+
+    dict_model = {}
+    params = {}
+    params['MAX_LENGTH'] = MAX_LENGTH
+    params['PADDING_VALUE'] = PADDING_VALUE
+    params['dict_OHE'] = dict_OHE
+
+    model = initialize_model(mask_value=PADDING_VALUE, input_shape=(MAX_LENGTH, 3))
+    model = compile_model(model)
+    model.load_weights(checkpoint_path)
+
+    dict_model['model'] = model
+    dict_model['params'] = params
+
+    return dict_model
+
+
+def train_model_calling(dict_model:Model = None, # overrides the model to be trained (should not use for now)
+                        dataset_local_path:str = LOCAL_DRAWINGS_SIMPLIFIED_PATH,
+                        pc_within_class:int = PERCENT_CLASS,
+                        nb_classes:int = NUMBER_CLASSES,
+                        list_classes:list = LIST_CLASSES, # overrides the nb_classes and uses the list in the shared data here
+                        ) -> Tuple[Model, dict]:
     '''
     Initialize, compile and train the model.
+    If the dict_model is specified, this is the one we train.
     /!\ training a model with a given list_classes for comparison of models will not
     use the same drawings in each class, but the dataset is big enough to consider
     that is not a problem.
     '''
+    # if dict_model is not None:
+    #     # We use the compiled model with its weigths loaded
+    #     model = dict_model['model']
+    #     model_params = dict_model['params']
+    #     MAX_LENGTH = model_params['MAX_LENGTH']
+    #     PADDING_VALUE = model_params['PADDING_VALUE']
+    #     dict_OHE = model_params['dict_OHE']
+    # else:
+    #     # We instantiate a new model with the calling params
     model = initialize_model()
-    model = compile_model(model, learning_rate=0.0005)
+    model = compile_model(model)
 
     dict_subset = generate_subset_Xy(dataset_local_path,
                                      pc_within_class=pc_within_class,
@@ -391,15 +440,3 @@ def train_model_calling(dataset_local_path:str = LOCAL_DRAWINGS_SIMPLIFIED_PATH,
                                  checkpoint_path=checkpoint_path
                                  )
     return model, history
-
-
-def load_model() -> dict:
-    '''
-    Return a dictionary with key-value pairs:
-        - model: Model, the pretrained model to use with its checkpoint.
-        - params: dict, a dictionary of the params with key-value pairs:
-            - MAX_LENGTH: int, the length used for padding
-            - PADDING_VALUE: int, the value used for padding
-            - dict_OHE: dict, each key is a class name and each value is the
-            associated index in the OHE space
-    '''

@@ -16,7 +16,8 @@ from typing import Tuple
 from pictionary_ai.params import *
 
 
-def initialize_model() -> Model:
+def initialize_model(mask_value:float = PADDING_VALUE,
+                     input_shape:tuple = (MAX_LENGTH, 3)) -> Model:
     '''
     Initialize the Neural Network with random weights, using bidirectional LTSM
     masking layer.
@@ -28,11 +29,11 @@ def initialize_model() -> Model:
     model = Sequential()
 
     # Add Masking layer to handle variable-length sequences
-    model.add(layers.Masking(mask_value=PADDING_VALUE, input_shape=(MAX_LENGTH, 3)))
+    model.add(layers.Masking(mask_value=mask_value, input_shape=input_shape))
 
     # Bidirectional LSTM layers with dropout option
-    model.add(layers.Bidirectional(layers.LSTM(196, dropout=0.2, recurrent_dropout=0.2, return_sequences=True)))
-    model.add(layers.Bidirectional(layers.LSTM(64, dropout=0.2, recurrent_dropout=0.2)))
+    model.add(layers.Bidirectional(layers.LSTM(196, dropout=0.2, return_sequences=True)))
+    model.add(layers.Bidirectional(layers.LSTM(64, dropout=0.2)))
 
     # Dense layers with Dropout layers
     model.add(layers.Dense(128, activation='linear'))
