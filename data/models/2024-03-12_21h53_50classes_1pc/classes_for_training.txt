@@ -1,0 +1,52 @@
+MAX_LENGTH=150
+PADDING_VALUE=99
+airplane
+bear
+boomerang
+brain
+broccoli
+calendar
+car
+carrot
+circle
+couch
+crab
+duck
+envelope
+fence
+flamingo
+guitar
+hamburger
+hedgehog
+hot dog
+hurricane
+lantern
+leaf
+lighthouse
+microphone
+monkey
+moon
+mountain
+mug
+octagon
+pickup truck
+rain
+rake
+saxophone
+sea turtle
+shorts
+skateboard
+sock
+speedboat
+square
+sweater
+t-shirt
+table
+teapot
+teddy-bear
+television
+tennis racquet
+tent
+van
+whale
+wine glass

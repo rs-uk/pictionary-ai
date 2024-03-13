@@ -1,0 +1,52 @@
+MAX_LENGTH=150
+PADDING_VALUE=99
+The Eiffel Tower
+aircraft carrier
+angel
+anvil
+asparagus
+axe
+beard
+bee
+belt
+bench
+bush
+calculator
+cannon
+cell phone
+cloud
+couch
+dresser
+eye
+fence
+firetruck
+garden
+grass
+hammer
+house
+hurricane
+ice cream
+key
+knife
+line
+marker
+matches
+necklace
+octopus
+penguin
+pineapple
+potato
+radio
+rhinoceros
+saw
+school bus
+scorpion
+screwdriver
+skull
+snorkel
+snowflake
+swan
+syringe
+teddy-bear
+television
+tractor

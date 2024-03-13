@@ -1,0 +1,5 @@
+MAX_LENGTH=50
+PADDING_VALUE=99
+{"pillow":0,"peanut":1}
+peanut
+pillow

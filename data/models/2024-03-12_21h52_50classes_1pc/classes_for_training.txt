@@ -1,0 +1,52 @@
+MAX_LENGTH=150
+PADDING_VALUE=99
+arm
+axe
+bear
+belt
+bird
+birthday cake
+blueberry
+bowtie
+bracelet
+bucket
+calendar
+camouflage
+cell phone
+cooler
+dishwasher
+dragon
+drums
+feather
+fish
+frog
+giraffe
+hot air balloon
+jail
+keyboard
+matches
+paint can
+panda
+pencil
+pond
+sandwich
+saw
+screwdriver
+shovel
+sink
+skyscraper
+snowman
+spider
+square
+stethoscope
+streetlight
+sun
+sweater
+t-shirt
+teapot
+television
+tiger
+traffic light
+whale
+wheel
+windmill

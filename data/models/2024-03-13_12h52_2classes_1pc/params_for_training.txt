@@ -1,0 +1,7 @@
+MAX_LENGTH=50
+PADDING_VALUE=99
+{"boomerang":0,"asparagus":1,"washing machine":2,"grass":3}
+asparagus
+boomerang
+grass
+washing machine

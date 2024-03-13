@@ -1,0 +1,5 @@
+MAX_LENGTH=150
+PADDING_VALUE=99
+{"rain":0,"squiggle":1}
+rain
+squiggle

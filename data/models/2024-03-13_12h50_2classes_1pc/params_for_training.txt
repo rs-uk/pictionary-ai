@@ -1,0 +1,53 @@
+MAX_LENGTH=50
+PADDING_VALUE=99
+{"line":0,"basketball":1,"eyeglasses":2,"arm":3,"passport":4,"bottlecap":5,"bread":6,"horse":7,"telephone":8,"cookie":9,"sword":10,"violin":11,"sea turtle":12,"snowflake":13,"traffic light":14,"drums":15,"broom":16,"butterfly":17,"mountain":18,"lighthouse":19,"face":20,"backpack":21,"asparagus":22,"fan":23,"spider":24,"square":25,"mouse":26,"parachute":27,"marker":28,"flying saucer":29,"hat":30,"television":31,"aircraft carrier":32,"hand":33,"grapes":34,"camel":35,"canoe":36,"bulldozer":37,"pliers":38,"potato":39,"trumpet":40,"fish":41,"compass":42,"banana":43,"light bulb":44,"fence":45,"chair":46,"tooth":47,"swing set":48,"steak":49}
+aircraft carrier
+arm
+asparagus
+backpack
+banana
+basketball
+bottlecap
+bread
+broom
+bulldozer
+butterfly
+camel
+canoe
+chair
+compass
+cookie
+drums
+eyeglasses
+face
+fan
+fence
+fish
+flying saucer
+grapes
+hand
+hat
+horse
+light bulb
+lighthouse
+line
+marker
+mountain
+mouse
+parachute
+passport
+pliers
+potato
+sea turtle
+snowflake
+spider
+square
+steak
+swing set
+sword
+telephone
+television
+tooth
+traffic light
+trumpet
+violin

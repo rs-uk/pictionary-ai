@@ -1,0 +1,53 @@
+MAX_LENGTH=150
+PADDING_VALUE=99
+{"cooler":0,"door":1,"crab":2,"hockey stick":3,"yoga":4,"hexagon":5,"carrot":6,"horse":7,"calendar":8,"onion":9,"shark":10,"ceiling fan":11,"sea turtle":12,"hurricane":13,"chandelier":14,"broom":15,"circle":16,"butterfly":17,"toothpaste":18,"key":19,"sun":20,"skyscraper":21,"coffee cup":22,"raccoon":23,"submarine":24,"flying saucer":25,"tent":26,"paint can":27,"cloud":28,"house plant":29,"washing machine":30,"trombone":31,"bulldozer":32,"pliers":33,"bear":34,"dog":35,"hourglass":36,"ocean":37,"hedgehog":38,"speedboat":39,"toaster":40,"paper clip":41,"fireplace":42,"chair":43,"octopus":44,"piano":45,"alarm clock":46,"rifle":47,"calculator":48,"dragon":49}
+alarm clock
+bear
+broom
+bulldozer
+butterfly
+calculator
+calendar
+carrot
+ceiling fan
+chair
+chandelier
+circle
+cloud
+coffee cup
+cooler
+crab
+dog
+door
+dragon
+fireplace
+flying saucer
+hedgehog
+hexagon
+hockey stick
+horse
+hourglass
+house plant
+hurricane
+key
+ocean
+octopus
+onion
+paint can
+paper clip
+piano
+pliers
+raccoon
+rifle
+sea turtle
+shark
+skyscraper
+speedboat
+submarine
+sun
+tent
+toaster
+toothpaste
+trombone
+washing machine
+yoga

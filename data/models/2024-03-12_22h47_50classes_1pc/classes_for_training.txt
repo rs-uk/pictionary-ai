@@ -1,0 +1,52 @@
+MAX_LENGTH=150
+PADDING_VALUE=99
+The Eiffel Tower
+ambulance
+angel
+anvil
+asparagus
+axe
+barn
+bathtub
+bird
+boomerang
+broom
+bus
+butterfly
+camel
+campfire
+cell phone
+cooler
+dog
+elbow
+elephant
+feather
+fence
+firetruck
+hedgehog
+jail
+kangaroo
+lion
+lobster
+mermaid
+microphone
+nose
+oven
+pillow
+pineapple
+police car
+rain
+roller coaster
+shorts
+spreadsheet
+stethoscope
+stop sign
+submarine
+swan
+table
+teapot
+toaster
+tornado
+traffic light
+train
+van

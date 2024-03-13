@@ -1,0 +1,5 @@
+MAX_LENGTH=150
+PADDING_VALUE=99
+{"beach":0,"foot":1}
+beach
+foot
