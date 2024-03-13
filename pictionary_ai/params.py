@@ -13,7 +13,7 @@ if not os.path.exists(LOCAL_SHARED_DATA_PATH):
     os.makedirs(LOCAL_SHARED_DATA_PATH)
 
 
-MAX_LENGTH = 200 # Max number of points we keep in a drawing for training and inference
+MAX_LENGTH = 150 # Max number of points we keep in a drawing for training and inference
 PADDING_VALUE = 99
 NUMBER_CLASSES = 50
 PERCENT_CLASS = 25
