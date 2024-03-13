@@ -1,14 +1,14 @@
 # from keras.models import Sequential
 # from keras import Sequential
-from tensorflow.python.keras.models import Sequential
-# from keras.optimizers import Adam
-from tensorflow.python.keras.optimizers import adam_v2
-from tensorflow.python.keras import callbacks
+from tensorflow.keras.models import Sequential
+from keras.optimizers import Adam
+# from tensorflow.python.keras.optimizers import adam_v2
+from tensorflow.keras import callbacks
 # from tensorflow.python.keras import utils
 # from keras import Sequential
-from keras import Model, layers
+# from keras import Model, layers
 # from keras import optimizers, regularizers
-# from tensorflow.python.keras import layers
+from tensorflow.keras import layers, Model
 # from sklearn.preprocessing import TargetEncoder
 from colorama import Fore, Style
 import numpy as np
@@ -16,7 +16,8 @@ from typing import Tuple
 from pictionary_ai.params import *
 
 
-def initialize_model() -> Model:
+def initialize_model(mask_value:float = PADDING_VALUE,
+                     input_shape:tuple = (MAX_LENGTH, 3)) -> Model:
     '''
     Initialize the Neural Network with random weights, using bidirectional LTSM
     masking layer.
@@ -28,11 +29,11 @@ def initialize_model() -> Model:
     model = Sequential()
 
     # Add Masking layer to handle variable-length sequences
-    model.add(layers.Masking(mask_value=PADDING_VALUE, input_shape=(MAX_LENGTH, 3)))
+    model.add(layers.Masking(mask_value=mask_value, input_shape=input_shape))
 
     # Bidirectional LSTM layers with dropout option
-    model.add(layers.Bidirectional(layers.LSTM(196, dropout=0.2, recurrent_dropout=0.2, return_sequences=True)))
-    model.add(layers.Bidirectional(layers.LSTM(64, dropout=0.2, recurrent_dropout=0.2)))
+    model.add(layers.Bidirectional(layers.LSTM(196, dropout=0.2, return_sequences=True)))
+    model.add(layers.Bidirectional(layers.LSTM(64, dropout=0.2)))
 
     # Dense layers with Dropout layers
     model.add(layers.Dense(128, activation='linear'))
@@ -56,7 +57,7 @@ def compile_model(model: Model, learning_rate=0.0005) -> Model:
     optimiser Adam, and accuracy for the metric.
     Return the compiled model.
     '''
-    optimizer = adam_v2(learning_rate=learning_rate)
+    optimizer = Adam(learning_rate=learning_rate)
     model.compile(loss="categorical_crossentropy", optimizer=optimizer, metrics=["accuracy"])
 
     print("✅ Model compiled")
@@ -70,8 +71,8 @@ def train_model(model: Model,
                 batch_size=256,
                 patience=3,
                 validation_data=None, # overrides validation_split
-                validation_split=0.3
-                ) -> Tuple[Model, dict]:
+                validation_split=0.3,
+                checkpoint_path:str = MODELS_PATH) -> Tuple[Model, dict]:
     '''
     Fit the model and return a tuple (fitted_model, history).
     We save checkpoints as well.
@@ -84,7 +85,7 @@ def train_model(model: Model,
                                  verbose=1
                                  )
 
-    model_checkpoint_callback = callbacks.ModelCheckpoint(filepath=MODELS_PATH,
+    model_checkpoint_callback = callbacks.ModelCheckpoint(filepath=checkpoint_path,
                                                           save_weights_only=True,
                                                           monitor='val_accuracy',
                                                           mode='max',
@@ -101,7 +102,7 @@ def train_model(model: Model,
                         verbose=1
                         )
 
-    print(f"✅ Model trained on {len(X)} drawings in {NUMBER_CLASSES} classes, with min val accuracy: {round(np.min(history['history']['accuracy']), 2)}")
+    print(f"✅ Model trained on {len(X)} drawings in {NUMBER_CLASSES} classes, with min val accuracy: {round(np.min(history.history['accuracy']), 2)}")
 
     return model, history
 
