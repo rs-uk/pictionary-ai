@@ -22,8 +22,8 @@ run_pad_preprocessed_dataset:
 run_OHE_padded_dataset:
 	python -c 'from pictionary_ai.interface.main import OHE_padded_dataset; OHE_padded_dataset()'
 
-run_full_processing_dataset:
-	python -c 'from pictionary_ai.interface.main import preprocess_pad_OHE_simplified_dataset; preprocess_pad_OHE_simplified_dataset()'
+run_process_simplified_dataset:
+	python -c 'from pictionary_ai.interface.main import process_dataset; process_dataset()'
 
 run_build_subset:
 	python -c 'from pictionary_ai.interface.main import generate_subset_Xy; generate_subset_Xy()'

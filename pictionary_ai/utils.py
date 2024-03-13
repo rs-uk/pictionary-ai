@@ -236,8 +236,8 @@ def create_classes_mapping(class_files_path:str) -> dict:
 
     # Build a mapping dictionary of the classes
     dict_classes = {}
-    for key, class_name in enumerate(list_classes) :
-        dict_classes[class_name] = key
+    for index, class_name in enumerate(list_classes) :
+        dict_classes[class_name] = index
 
     return dict_classes
 

@@ -8,6 +8,7 @@ from pathlib import Path
 import random
 import os
 from sklearn.model_selection import train_test_split
+from datetime import datetime
 
 
 # TODO: check that data to download is not already stored locally
@@ -121,13 +122,24 @@ def OHE_padded_dataset(dataset_local_path:str = LOCAL_DRAWINGS_SIMPLIFIED_PADDED
         save_drawings_to_ndjson_local(list_class_OHE, destination_folder_path)
 
 
-def preprocess_pad_OHE_simplified_dataset(dataset_local_path:str = LOCAL_DRAWINGS_SIMPLIFIED_SUBSET_PATH,
-                                          dataset_local_processed:str = None,
-                                          shuffle:bool = True
-                                          ) -> None:
+def process_dataset(dataset_local_path:str = LOCAL_DRAWINGS_SIMPLIFIED_PATH,
+                    dataset_local_processed:str = None,
+                    shuffle:bool = True,
+                    save_processed_classes:bool = True,
+                    ) -> dict:
     '''
     Process the locally-stored simplified dataset and save the created NDJSON files
     into a separate folder. The output is model-ready files for each class.
+    Return a dictionary with key-value pairs:
+    - dict_OHE: dict, each key is a class name and each value is the associated index
+    in the OHE space
+    - list_drawings: list, a shuffled list of all the drawings in the subset, as
+    dictionaries with key-value pairs:
+        - key_id: str, the UID of the drawing
+        - class: str, the name of the class
+        - length: int, the lenght of the drawing (nb of points before padding)
+        - list_deltas: list, the drawing represented by its deltas
+        - OHE_class: list, the OHE of the drawing
     '''
     # Create the classes mapping dictionary
     dict_OHE_mapping = create_classes_mapping(dataset_local_path)
@@ -139,10 +151,13 @@ def preprocess_pad_OHE_simplified_dataset(dataset_local_path:str = LOCAL_DRAWING
     r_bar='| {n_fmt}/{total_fmt} [{elapsed}<{remaining}, ' '{rate_fmt}{postfix}]'
     bar_format = l_bar + bar + r_bar
     tqdm_class_files = tqdm(class_files, bar_format=bar_format) # to tqdm to display progress
-    # Define the destination folder and create it if not existent
-    destination_folder_path = dataset_local_processed
-    if not os.path.exists(destination_folder_path):
-        os.makedirs(destination_folder_path)
+    # Define the saving folder and create it if not existent
+    if save_processed_classes:
+        destination_folder_path = dataset_local_processed
+        if not os.path.exists(destination_folder_path):
+            os.makedirs(destination_folder_path)
+    # Define the list to return
+    list_subset_processed_drawings = []
     # Process and save all the class files
     for class_file in tqdm_class_files:
         class_filepath = f"{dataset_local_path}/{class_file}"
@@ -152,31 +167,49 @@ def preprocess_pad_OHE_simplified_dataset(dataset_local_path:str = LOCAL_DRAWING
         list_drawings_padded = pad_class(list_drawings_processed, silent=False)
         tqdm_class_files.set_description(f"One-Hot-Encoding {class_file}")
         list_drawings_OHE = OHE_class(list_drawings_padded, dict_OHE_mapping, silent=False)
-        tqdm_class_files.set_description(f"Saving {class_file}")
-        save_drawings_to_ndjson_local(list_drawings_OHE, f"{destination_folder_path}/{class_file}", silent=False)
+        # Optionally we do not store the files on the local drive and just build the
+        # list in memory. Default behavior is to save.
+        if save_processed_classes:
+            tqdm_class_files.set_description(f"Saving {class_file}")
+            save_drawings_to_ndjson_local(list_drawings_OHE, f"{destination_folder_path}/{class_file}", silent=False)
+        # We concatenate the class drawings to the subset drawings' list (NOT APPENDING)
+        list_subset_processed_drawings += list_drawings_OHE
+
+    output = {}
+    output['dict_OHE'] = dict_OHE_mapping
+    output['list_drawings'] = list_subset_processed_drawings
+
+    return output
 
 
 def generate_subset_Xy(dataset_local_path:str = LOCAL_DRAWINGS_SIMPLIFIED_PATH,
                        pc_within_class:int = PERCENT_CLASS,
                        nb_classes:int = NUMBER_CLASSES,
-                       list_classes:str = None
-                       ) -> list:
+                       list_classes:str = None,
+                       save_processed_classes:bool = True,
+                       ) -> dict:
     '''
-    Select a subset of the locally-stored quickdraw dataset, pulling the given percentage
-    of drawings within each class. This shuffles the classes and the drawings within, and
-    saves them in a new folder describing the subset. We then collate all the classes in a
-    list, shuffle that list and ready it for training. We save the collated Xy data as a
-    JSON file in a new folder.
+    Select a random subset of the locally-stored quickdraw dataset, pulling the given
+    percentage of drawings within each class at random. The new classes are then
+    stored locally in a separate folder describing the subset (number of classes and
+    percentage used within each class).
+    This subset is then processed (pre-processed + padded + OHE'd) and stored in another
+    folder. We then collate all the classes in a list, shuffle that list and return
+    it as the output.
     By default we take 10% of the classes as this seems enough for learning.
     **kwargs:
         - nb_classes: int, the number of classes to select at random
         - list_classes: list, the name of the classes to select, overrides nb_classes
-    Return a shuffled list of all the drawings in the subset, as dict with key-value pairs:
-        - key_id: str, the UID of the drawing
-        - class: str, the name of the class
-        - length: int, the lenght of the drawing (nb of points before padding)
-        - list_deltas: list, the drawing represented by its deltas
-        - OHE_class: list, the OHE of the drawing
+    Return a dictionary with:
+        - dict_OHE: dict, each key is a class name and each value is the associated index
+        in the OHE space
+        - list_drawings: list, a shuffled list of all the drawings in the subset, as
+        dictionaries with key-value pairs:
+            - key_id: str, the UID of the drawing
+            - class: str, the name of the class
+            - length: int, the lenght of the drawing (nb of points before padding)
+            - list_deltas: list, the drawing represented by its deltas
+            - OHE_class: list, the OHE of the drawing
     '''
     ##### List the classes present in the dataset_local_path
     # The dict keys are the class names and the values are the file names
@@ -213,11 +246,13 @@ def generate_subset_Xy(dataset_local_path:str = LOCAL_DRAWINGS_SIMPLIFIED_PATH,
     bar_format = l_bar + bar + r_bar
     tqdm_class_names = tqdm(list_classes, bar_format=bar_format) # to tqdm to display progress
 
-    ##### Copying the selected classes files to the new subset folder for processing
+    ##### Extracting the required percentage of drawings from each class and storing the
+    # resampled class files to the new subset folder for processing
     for class_name in tqdm_class_names:
         list_class_drawings = []
+        tqdm_class_names.set_description(f"Extracting {pc_within_class} percent of {class_name}".format(class_name))
         # Getting the class file from the class name
-        class_filepath = f"{dataset_local_path}/{dict_classes[class_name]}"
+        class_filepath = f"{dataset_local_path}/{dict_classes[class_name]}".format(class_name)
         # Counting the drawings in the class and computing the number to extract
         nb_drawings_in_class = int(re.search(r'\d+', str(subprocess.check_output(['wc', '-l', class_filepath]))).group())
         nb_drawings_to_load = int(nb_drawings_in_class * pc_within_class / 100)
@@ -229,42 +264,26 @@ def generate_subset_Xy(dataset_local_path:str = LOCAL_DRAWINGS_SIMPLIFIED_PATH,
             json_drawing = ujson.loads(linecache.getline(class_filepath, i+1 , module_globals=None))
             list_class_drawings.append(json_drawing)
         linecache.clearcache()
-        tqdm_class_names.set_description(f"Extracting {pc_within_class} percent of {class_name}")
         save_drawings_to_ndjson_local(list_class_drawings, output_file=f"{LOCAL_DRAWINGS_SIMPLIFIED_SUBSET_PATH}/{pc_within_class}pc_{dict_classes[class_name]}")
         # We concatenate the class drawings to the subset drawings' list (NOT APPENDING)
         # list_subset_drawings = list_subset_drawings + list_class_drawings
 
     ##### Processing all the classes in the subset folder
-    preprocess_pad_OHE_simplified_dataset(dataset_local_path=LOCAL_DRAWINGS_SIMPLIFIED_SUBSET_PATH, dataset_local_processed=LOCAL_DRAWINGS_SIMPLIFIED_PROCESSED_PATH)
-
-    ##### Building the list of processed drawings for the output (list of dict)
-    dict_classes_processed = {}
-    classes_processed_files = [file for file in os.listdir(LOCAL_DRAWINGS_SIMPLIFIED_PROCESSED_PATH) if os.path.isfile(os.path.join(LOCAL_DRAWINGS_SIMPLIFIED_PROCESSED_PATH, file)) and file.endswith('.ndjson')]
-    for class_file in classes_processed_files:
-        # remove the file extension
-        class_name = re.sub(r'\.[^.]*$', '', class_file)
-        # remove all descriptive prefixes with the class name starting after the last '_'
-        class_name = re.sub(r'^.*_(.+)$', r'\1', class_name)
-        dict_classes_processed[class_name] = class_file
-
-    # Storing all drawings (dictionaries) in a list
-    list_subset_processed_drawings = []
-    for class_name in list_classes:
-        list_class_processed_drawings = []
-        # Getting the class file from the class name
-        class_filepath = f"{LOCAL_DRAWINGS_SIMPLIFIED_PROCESSED_PATH}/{dict_classes_processed[class_name]}"
-        nb_drawings_in_class = int(re.search(r'\d+', str(subprocess.check_output(['wc', '-l', class_filepath]))).group())
-        for i in range(nb_drawings_in_class):
-            json_drawing = ujson.loads(linecache.getline(class_filepath, i+1, module_globals=None))
-            list_class_processed_drawings.append(json_drawing)
-        linecache.clearcache()
-        # We concatenate the class drawings to the subset drawings' list (NOT APPENDING)
-        list_subset_processed_drawings = list_subset_processed_drawings + list_class_processed_drawings
+    dict_processed_dataset = process_dataset(dataset_local_path=LOCAL_DRAWINGS_SIMPLIFIED_SUBSET_PATH,
+                                             dataset_local_processed=LOCAL_DRAWINGS_SIMPLIFIED_PROCESSED_PATH,
+                                             save_processed_classes=save_processed_classes
+                                             )
+    dict_OHE = dict_processed_dataset['dict_OHE']
+    list_subset_processed_drawings = dict_processed_dataset['list_drawings']
 
     # We shuffle the drawings in the subset
     random.shuffle(list_subset_processed_drawings)
 
-    return list_subset_processed_drawings
+    output = {}
+    output['dict_OHE'] = dict_OHE
+    output['list_drawings'] = list_subset_processed_drawings
+
+    return output
 
 
 def split_Xy(list_subset_drawings:list) -> dict:
@@ -299,7 +318,7 @@ def split_Xy(list_subset_drawings:list) -> dict:
     bar = '{bar}'
     r_bar='| {n_fmt}/{total_fmt} [{elapsed}<{remaining}, ' '{rate_fmt}{postfix}]'
     bar_format = l_bar + bar + r_bar
-    tqdm_Xy = tqdm(dict_split_dataset.items(), bar_format=bar_format) # to tqdm to display progress
+    tqdm_Xy = tqdm(dict_split_dataset.items(), bar_format=bar_format, total=6) # to tqdm to display progress
 
     for key, value in tqdm_Xy:
         output_filename = key + '.json'
@@ -321,13 +340,45 @@ def train_model_calling(dataset_local_path:str = LOCAL_DRAWINGS_SIMPLIFIED_PATH,
     '''
     model = initialize_model()
     model = compile_model(model, learning_rate=0.0005)
-    list_subset_drawings = generate_subset_Xy(dataset_local_path, pc_within_class=pc_within_class, nb_classes=nb_classes)
+    dict_subset = generate_subset_Xy(dataset_local_path,
+                                     pc_within_class=pc_within_class,
+                                     nb_classes=nb_classes,
+                                     save_processed_classes=False # Switch this to true to save the files
+                                     )
+    list_subset_drawings = dict_subset['list_drawings']
+    dict_OHE = dict_subset['dict_OHE']
+    list_classes = list(dict_OHE.keys())
     dict_Xy = split_Xy(list_subset_drawings)
+
+    ##### Saving training details and model weights/checkpoints
+    # Build a folder with a name including NUMBER_CLASSES and PERCENT_CLASS along with
+    # the date of training to save the model checkpoints and refer to them.
+    str_start_training = datetime.now().strftime("%Y-%m-%d_%Hh%M")
+    str_unique_folder = f"{str_start_training}_{nb_classes}classes_{pc_within_class}pc"
+    checkpoint_dir = f"{MODELS_PATH}/{str_unique_folder}"
+    checkpoint_path = f"{MODELS_PATH}/{str_unique_folder}/checkpoint.ckpt"
+    if not os.path.exists(checkpoint_dir):
+        os.makedirs(checkpoint_dir)
+    # In that folder, save a file with the padding length, the padding value, the
+    # One Hot Endocing dictionary and the classes used for training in alphabetical
+    # order for easy reference.
+    list_classes.sort()
+    training_params_filepath = '/'.join((checkpoint_dir, 'params_for_training.txt'))
+    with open(training_params_filepath, 'w') as file_training_params:
+        file_training_params.write("%s\n" % f"MAX_LENGTH={MAX_LENGTH}")
+        file_training_params.write("%s\n" % f"PADDING_VALUE={PADDING_VALUE}")
+        ujson.dump(dict_OHE, file_training_params)
+        file_training_params.write('\n')
+        for item in list_classes:
+            # Write each class name to the file followed by a newline
+            file_training_params.write("%s\n" % item)
+
     model, history = train_model(model,
                                  X = np.array(dict_Xy['X_train']),
                                  y = np.array(dict_Xy['y_train']),
                                  batch_size=256,
                                  patience=3,
-                                 validation_data=[np.array(dict_Xy['X_val']), np.array(dict_Xy['y_val'])]
+                                 validation_data=[np.array(dict_Xy['X_val']), np.array(dict_Xy['y_val'])],
+                                 checkpoint_path=checkpoint_path
                                  )
     return model, history
