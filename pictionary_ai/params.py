@@ -1,7 +1,9 @@
 import os, ujson, linecache
 
 #####################  VARIABLES  #####################
-# BUCKET_NAME_DRAWINGS_SIMPLIFIED = os.environ.get('BUCKET_NAME_DRAWINGS_SIMPLIFIED')
+
+BUCKET_NAME_DRAWINGS_SIMPLIFIED = 'quickdraw-simplified'
+
 # BUCKET_NAME_DRAWINGS_SIMPLIFIED_PROCESSED = os.environ.get('BUCKET_NAME_DRAWINGS_SIMPLIFIED_PROCESSED')
 
 
@@ -88,5 +90,7 @@ LOCAL_DRAWINGS_SIMPLIFIED_MODELREADY_PATH = f"{LOCAL_PROCESSED_DATA_PATH}/model-
 # LOCAL_DRAWINGS_SIMPLIFIED_MODELREADY_PATH = f"{LOCAL_DATA_PATH}/model-ready_{BUCKET_NAME_DRAWINGS_SIMPLIFIED}_{NUMBER_CLASSES}classes_{PERCENT_CLASS}pc"
 
 
+
 # # Define the local directory to save the model
 # MODELS_PATH = '/'.join((LOCAL_DATA_PATH, 'models/models'))
+
