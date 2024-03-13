@@ -243,8 +243,6 @@ def create_classes_mapping(class_files_path:str) -> dict:
 
 
 
-
-
 # # Download a blob from a bucket and return it as a binary I/O
 # def download_blob_to_memory(bucket_name: str, source_blob_name: str) -> bytes:
 #     '''
