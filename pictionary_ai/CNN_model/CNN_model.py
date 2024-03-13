@@ -340,7 +340,7 @@ def evaluate_model(
 
 
 ###### Function calls to prepare dataset ######
-download_50_classes(file_list, bucket_name, blob_prefix, local_folder_path)
+# download_50_classes(file_list, bucket_name, blob_prefix, local_folder_path)
 # bmp_50class_10pc = create_bmp_50class_10pc(file_list, local_folder_path)
 # X_train, X_test, y_train, y_test = tranform_shuffle_split_data(bmp_50class_10pc)
 
@@ -351,3 +351,59 @@ download_50_classes(file_list, bucket_name, blob_prefix, local_folder_path)
 # model.summary()
 # model, history = train_model(model, X_train, y_train, validation_split=0.2)
 # evaluate_model(model, X_test, y_test)
+
+
+
+####################################
+### Convert API JSON into format ready for prediction
+####################################
+
+def normalize_strokes(strokes, epsilon=1.0, resample_spacing=1.0):
+    '''
+    Function centres and resize the strokes to a format similar to that on which the model was trained
+    '''
+    if len(strokes) == 0:
+        raise ValueError('empty image')
+
+    # find min and max
+    amin = None
+    amax = None
+    for x, y in strokes:
+        cur_min = [np.min(x), np.min(y)]
+        cur_max = [np.max(x), np.max(y)]
+        amin = cur_min if amin is None else np.min([amin, cur_min], axis=0)
+        amax = cur_max if amax is None else np.max([amax, cur_max], axis=0)
+
+    # drop any drawings that are linear along one axis
+    arange = np.array(amax) - np.array(amin)
+    if np.min(arange) == 0:
+        raise ValueError('bad range of values')
+
+    arange = np.max(arange)
+    output = []
+    for x, y in strokes:
+        xy = np.array([x, y], dtype=float).T
+        xy -= amin
+        xy *= 255.
+        xy /= arange
+        #resampled = resample(xy[:, 0], xy[:, 1], resample_spacing)
+        #simplified = simplify_coords(xy, epsilon)
+        xy = np.around(xy).astype(np.uint8)
+        output.append(xy.T.tolist())
+
+    return output
+
+# Create a bmp np.array fromt the strokes in a drawing file
+def draw_image_from_strokes(raw_strokes, size=256, lw=6, augmentation = False):
+    img = np.zeros((BASE_SIZE, BASE_SIZE), np.uint8)
+    for t, stroke in enumerate(raw_strokes):
+        for i in range(len(stroke[0]) - 1):
+            color = 255
+            _ = cv2.line(img, (stroke[0][i], stroke[1][i]),
+                         (stroke[0][i + 1], stroke[1][i + 1]), color, lw)
+    if size != BASE_SIZE:
+        img = cv2.resize(img, (size, size))
+    if augmentation:
+        if random.random() > 0.5:
+            img = np.fliplr(img)
+    return img
