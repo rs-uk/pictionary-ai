@@ -185,7 +185,7 @@ def process_dataset(dataset_local_path:str = LOCAL_DRAWINGS_SIMPLIFIED_PATH,
 def generate_subset_Xy(dataset_local_path:str = LOCAL_DRAWINGS_SIMPLIFIED_PATH,
                        pc_within_class:int = PERCENT_CLASS,
                        nb_classes:int = NUMBER_CLASSES,
-                       list_classes:str = None,
+                       list_classes:list = None, # overrides nb_classes
                        save_processed_classes:bool = True,
                        ) -> dict:
     '''
@@ -333,16 +333,22 @@ def split_Xy(list_subset_drawings:list) -> dict:
 
 def train_model_calling(dataset_local_path:str = LOCAL_DRAWINGS_SIMPLIFIED_PATH,
                 pc_within_class:int = PERCENT_CLASS,
-                nb_classes:int = NUMBER_CLASSES
+                nb_classes:int = NUMBER_CLASSES,
+                list_classes:list = LIST_CLASSES, # overrides the nb_classes and uses the list in the shared data here
                 ) -> Tuple[Model, dict]:
     '''
     Initialize, compile and train the model.
+    /!\ training a model with a given list_classes for comparison of models will not
+    use the same drawings in each class, but the dataset is big enough to consider
+    that is not a problem.
     '''
     model = initialize_model()
     model = compile_model(model, learning_rate=0.0005)
+
     dict_subset = generate_subset_Xy(dataset_local_path,
                                      pc_within_class=pc_within_class,
                                      nb_classes=nb_classes,
+                                     list_classes=list_classes,
                                      save_processed_classes=False # Switch this to true to save the files
                                      )
     list_subset_drawings = dict_subset['list_drawings']
@@ -373,6 +379,9 @@ def train_model_calling(dataset_local_path:str = LOCAL_DRAWINGS_SIMPLIFIED_PATH,
             # Write each class name to the file followed by a newline
             file_training_params.write("%s\n" % item)
 
+    print('Compiled the following model:')
+    print(model.summary())
+
     model, history = train_model(model,
                                  X = np.array(dict_Xy['X_train']),
                                  y = np.array(dict_Xy['y_train']),
@@ -382,3 +391,15 @@ def train_model_calling(dataset_local_path:str = LOCAL_DRAWINGS_SIMPLIFIED_PATH,
                                  checkpoint_path=checkpoint_path
                                  )
     return model, history
+
+
+def load_model() -> dict:
+    '''
+    Return a dictionary with key-value pairs:
+        - model: Model, the pretrained model to use with its checkpoint.
+        - params: dict, a dictionary of the params with key-value pairs:
+            - MAX_LENGTH: int, the length used for padding
+            - PADDING_VALUE: int, the value used for padding
+            - dict_OHE: dict, each key is a class name and each value is the
+            associated index in the OHE space
+    '''

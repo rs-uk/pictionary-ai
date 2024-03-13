@@ -1,4 +1,4 @@
-import os
+import os, ujson, linecache
 
 #####################  VARIABLES  #####################
 # BUCKET_NAME_DRAWINGS_SIMPLIFIED = os.environ.get('BUCKET_NAME_DRAWINGS_SIMPLIFIED')
@@ -6,10 +6,21 @@ import os
 
 
 #####################  CONSTANTS  #####################
-MAX_LENGTH = 150 # Max number of points we keep in a drawing for training and inference
+
+# Shared data path
+LOCAL_SHARED_DATA_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "shared_data")
+if not os.path.exists(LOCAL_SHARED_DATA_PATH):
+    os.makedirs(LOCAL_SHARED_DATA_PATH)
+
+
+MAX_LENGTH = 200 # Max number of points we keep in a drawing for training and inference
 PADDING_VALUE = 99
-NUMBER_CLASSES = 50
-PERCENT_CLASS = 1
+NUMBER_CLASSES = 2
+PERCENT_CLASS = 25
+DICT_OHE = ujson.loads(linecache.getline(f"{LOCAL_SHARED_DATA_PATH}/dict_50_class_subset.json", 1, module_globals=None))
+
+##### /!\ if this is not None then we use the classes set above in the whole program /!\ #####
+LIST_CLASSES = list(DICT_OHE.keys())
 
 # The Google-managed buckets with the quickdraw dataset
 ORIGINAL_BUCKET_DRAWINGS = 'quickdraw_dataset'
