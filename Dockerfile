@@ -22,5 +22,4 @@ COPY Makefile Makefile
 #RUN make reset_local_files
 
 # launch the API
-CMD uvicorn pictionary_ai.api.pict-api:app --host 0.0.0.0
-#--port $PORT
+CMD uvicorn pictionary_ai.api.pict-api:app --host 0.0.0.0 --port $PORT
